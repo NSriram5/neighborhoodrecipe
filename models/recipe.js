@@ -12,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         mealCategory: {
-            type: DataTypes.ENUM(['dinner', 'lunch', 'breakfast', 'snack', 'desert']),
+            type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         },
         dietCategory: {
-            type: DataTypes.ENUM(['vegetarian', 'vegan', 'glutenfree', 'kosher']),
+            type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         },
         servingCount: {
