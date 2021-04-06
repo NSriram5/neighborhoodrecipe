@@ -1,5 +1,3 @@
-const request = require("supertest");
-
 const app = require("../app");
 const db = require('../models/index');
 const Ingredient = require('../controllers/ingredients');
@@ -32,6 +30,7 @@ describe("Test ingredient controller functions", function() {
             expect(found).toEqual([{ label: "pepper", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f608", dataFound: true, flaggedForReview: true }, { label: "pep", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f609", dataFound: true, flaggedForReview: true }]);
         });
     });
+
     /**
      *  Use the controller to create an ingredient
      */

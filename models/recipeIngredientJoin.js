@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE'
         });
         RecipeIngredientJoin.belongsTo(models.Ingredient, {
-            foreignKey: 'recipeUuid',
+            foreignKey: 'ingredientUuid',
             onDelete: 'CASCADE',
         });
     };

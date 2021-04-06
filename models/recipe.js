@@ -53,8 +53,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         disabled: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            default: false
+            defaultValue: false,
+            allowNull: false
         }
     });
     Recipe.associate = (models) => {

@@ -84,8 +84,7 @@ describe("Auth Routes Test", function() {
     //         expect(response.statusCode).toEqual(400);
     //     });
     // });
+    afterAll(async function() {
+        await db.sequelize.close();
+    })
 });
-
-afterAll(async function() {
-    await db.sequelize.close();
-})

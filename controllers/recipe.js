@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const Recipe = require('../models').Recipe;
 const Ingredient = require('./ingredients');
 const Op = require('../models/').Sequelize.Op;
-const RecipeIngredient = require('./recipeIngredient');
+const RecipeIngredientJoin = require('./recipeIngredientJoin');
 const RecipeIngredientModel = require('../models').RecipeIngredientJoin;
 const Ingredientmodel = require('../models').Ingredient;
 const userModel = require('../models').User;
@@ -15,50 +15,47 @@ const userModel = require('../models').User;
 const createRecipe = async function(recipe) {
     let recipeIngredientList = [];
     //scan through the recipe ingredients
-    for (element in recipe.Ingredients) {
+    for (element in recipe.ingredients) {
         let indingredient = {};
-        indingredient.Name = recipe.Ingredients[element].label;
+        indingredient.label = recipe.ingredients[element].label;
         //create ingredients
         await Ingredient
             .createIngredient(indingredient)
             .then((result) => {
                 let recipeIngredientItem = {};
-                recipeIngredientItem.ingredientId = result.id;
-                recipeIngredientItem.quantity = recipe.Ingredients[element].quantity;
+                recipeIngredientItem.ingredientUuid = result.ingredientUuid;
+                recipeIngredientItem.quantity = recipe.ingredients[element].quantity;
+                recipeIngredientItem.measurement = recipe.ingredients[element].measurement;
+                recipeIngredientItem.prepInstructions = recipe.ingredients[element].prepInstructions;
+                recipeIngredientItem.additionalInfo = recipe.ingredients[element].additionalInfo;
+
                 recipeIngredientList.push(recipeIngredientItem);
             })
             .catch((exception) => {
                 console.log(exception);
-                console.log('Error creating Ingredient');
+                console.log('Error creating Ingredient within a recipe');
             })
     };
     //all ingredients have been created... Create the recipe now
-    let newRecipe = {...recipe };
-    return Recipe
+    let { ingredients, ...newRecipe } = recipe;
+    return await Recipe
         .create(
             newRecipe, {
-                returning: ['Name', 'ABV', 'OG', 'FG', 'IBU',
-                    'public', 'shareable', 'userId',
-                    'active', 'instructions', 'styleId', 'id'
-                ]
+                returning: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp', 'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled']
             })
-        .then((result) => {
+        .then(async(result) => {
             for (ri in recipeIngredientList) {
-                recipeIngredientList[ri].recipeId = result.dataValues.id;
+                recipeIngredientList[ri].recipeUuid = result.dataValues.recipeUuid;
             };
-            console.log('Recipe Created');
-            //console.log(recipeIngredientList);
-            RecipeIngredient
+            await RecipeIngredientJoin
                 .bulkCreate(recipeIngredientList)
                 .then((result) => {
-                    // console.log(result);
-                    //console.log('Recipe Ingredients Bulk Created');
+
                 })
                 .catch((riError) => {
                     console.log(riError);
 
                 });
-            //console.log(result);
             return result;
         })
         .catch(error => {
@@ -71,51 +68,40 @@ const getRecipe = async function(filter) {
     whereclause = {};
     let offsetClause = {};
     let limitClause = {};
-    if (filter === undefined) { filter = {}; }
-    if (!filter.isAdmin && !filter.isUser) {
-        whereclause.public = {
-            [Op.eq]: true
-        };
-    }
     if (filter == undefined) { filter = {}; }
-    if (filter.id) {
-        whereclause.id = {
-            [Op.eq]: filter.id
+    if (filter.recipeUuid) {
+        whereclause.recipeUuid = {
+            [Op.eq]: filter.recipeUuid
         };
     }
-    if (filter.name) {
-        whereclause.Name = {
-            [Op.iLike]: '%' + filter.name + '%'
+    if (filter.recipeName) {
+        whereclause.recipeName = {
+            [Op.iLike]: '%' + filter.recipeName + '%'
         };
     }
-    if (filter.style) {
-        whereclause.styleId = {
-            [Op.iLike]: filter.style
+    if (filter.mealCategory) {
+        whereclause.mealCategory = {
+            [Op.iLike]: filter.mealCategory
         };
     }
-    if (filter.token) {
-        whereclause.token = {
-            [Op.eq]: filter.token
+    if (filter.dietCategory) {
+        whereclause.dietCategory = {
+            [Op.iLike]: filter.dietCategory
         };
     }
-    if (filter.userId) {
-        whereclause.userId = {
-            [Op.eq]: filter.userId
+    if (filter.instructions) {
+        whereclause.instructions = {
+            [Op.iLike]: '%' + filter.instructions + '%'
         };
     }
-    if (filter.shareable) {
-        whereclause.shareable = {
-            [Op.eq]: filter.shareable
+    if (filter.toolsNeeded) {
+        whereclause.toolsNeeded = {
+            [Op.iLike]: '%' + filter.toolsNeeded + '%'
         };
     }
-    if (filter.ABV) {
-        whereclause.ABV = {
-            [Op.eq]: filter.ABV
-        };
-    }
-    if (filter.IBU) {
-        whereclause.IBU = {
-            [Op.eq]: filter.IBU
+    if (filter.disabled) {
+        whereclause.disabled = {
+            [Op.eq]: filter.disabled
         };
     }
     if (filter.offset) {
@@ -124,24 +110,19 @@ const getRecipe = async function(filter) {
     if (filter.limit) {
         limitClause.limit = filter.limit;
     } else { limitClause.limit = 21; }
-    //console.log(whereclause);
     return Recipe
         .findAndCountAll({
             model: Recipe,
             where: whereclause,
             limitClause,
             offsetClause,
-            include: [
-                { model: styleModel },
-            ],
             raw: true,
-            attributes: ['id', 'Name', 'ABV', 'OG', 'FG', 'IBU', 'token',
-                'styleId', 'public', 'shareable', 'instructions', 'userId', 'active'
+            attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
+                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled'
             ],
         })
         .then((result) => {
             console.log('Recipe Found');
-            //console.log(result);
             return result;
         })
         .catch(error => {
