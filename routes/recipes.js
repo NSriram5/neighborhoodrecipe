@@ -11,7 +11,7 @@ const router = new express.Router();
 const bcrypt = require("bcrypt");
 const { createToken } = require("../helpers/tokens");
 const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
-const { BadRequestError, ForbiddenError } = require("../expressError");
+const { BadRequestError, ForbiddenError, ExpressError } = require("../expressError");
 
 /**
  * GET / => render recipes list
@@ -64,7 +64,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
 router.patch("/", ensureLoggedIn, async function(req, res, next) {
     try {
         const recipe = await Recipe.getFullRecipe({ recipeUuid: req.body.recipeUuid, isAdmin: true });
-        if (res.locals.user.userId != recipe.userUuId && !res.locals.user.admin) {
+        if (res.locals.user.userUuId != recipe.userUuId && !res.locals.user.isAdmin) {
             throw new ForbiddenError("Only an admin or the user of this account can update these details");
         }
 
@@ -88,14 +88,17 @@ router.patch("/", ensureLoggedIn, async function(req, res, next) {
  * 
  * Authorization required: owner of recipe or admin
  */
-router.delete(":/recipeUuid", ensureLoggedIn, async function(req, res, next) {
+router.delete("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
     try {
-        const recipe = await Recipe.getRecipe(req, params.recipeUuid);
+        const recipe = await Recipe.getRecipe({ recipeUuid: req.params.recipeUuid });
         if (res.locals.user.isAdmin == false && res.locals.user.username != recipe.user) {
             throw new ForbiddenError("Only an admin or the user of this account can delete this recipe");
         }
-        await recipe.remove(req.params.id);
-        return res.json({ message: "recipe deleted" });
+        let response = await Recipe.deleteRecipe(req.params.recipeUuid);
+        if (response.message == "delete successful") {
+            return res.json({ message: "recipe deleted" });
+        }
+        throw new ExpressError(response.message);
     } catch (err) {
         return next(err);
     }

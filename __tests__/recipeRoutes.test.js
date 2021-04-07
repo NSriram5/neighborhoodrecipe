@@ -6,6 +6,7 @@ const db = require('../models/index');
 const User = require('../controllers/user');
 const Recipe = require('../controllers/recipe');
 const recipe = require("../models/recipe");
+const { patch } = require("../app");
 
 let token;
 let sampleRecipeUuid;
@@ -137,9 +138,46 @@ describe("Auth Routes Test", function() {
                 .send(changedInstructions)
                 .set('Authorization', `Bearer ${token}`);
             expect(response.body.instructions).toEqual(changedInstructions.instructions);
-            debugger;
-        })
-    })
+        });
+        test("can't patch a recipe if not logged in", async function() {
+            const changedInstructions = {
+                recipeUuid: sampleRecipeUuid,
+                instructions: "Lots of cats, so many cats"
+            };
+            let response = await request(app)
+                .patch(`/recipes`)
+                .send(changedInstructions);
+            expect(response.statusCode).toBe(401);
+        });
+        test("can't patch a recipe if not the user/admin", async function() {
+            let response = await request(app)
+                .post("/auth/token")
+                .send({ userName: "Test1", password: "password" });
+            token = response.body.token;
+            const changedInstructions = {
+                recipeUuid: sampleRecipeUuid,
+                instructions: "Lots of cats, so many cats"
+            };
+            response = await request(app)
+                .patch(`/recipes`)
+                .send(changedInstructions)
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.statusCode).toBe(403);
+
+        });
+    });
+    /**
+     * DELETE /recipes/[recipeUuid]
+     */
+    describe("DELETE /recipes/[recipeUuid]", function() {
+        test("can delete a recipe", async function() {
+            let response = await request(app)
+                .delete(`/recipes/${sampleRecipeUuid}`)
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.statusCode).toBe(200);
+            expect(response.body.message).toBe("recipe deleted");
+        });
+    });
 
     afterAll(async function() {
         await db.sequelize.close();
