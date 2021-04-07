@@ -4,8 +4,7 @@
 
 const jsonschema = require("jsonschema");
 
-//const User = require("../models/user");
-const User = require("../controllers/user")
+const User = require("../controllers/user");
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");

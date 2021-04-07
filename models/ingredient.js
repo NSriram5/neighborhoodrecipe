@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const Ingredient = sequelize.define('Ingredient', {
         // Model attributes are defined here
-        recipeUuid: {
+        ingredientUuid: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
@@ -9,13 +9,13 @@ module.exports = (sequelize, DataTypes) => {
         },
         dataFound: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            default: false
+            allowNull: true,
+            defaultValue: false
         },
         flaggedForReview: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            default: false
+            allowNull: true,
+            defaultValue: false
         },
         label: {
             type: DataTypes.STRING,
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     Ingredient.associate = (models) => {
         Ingredient.belongsToMany(models.Recipe, {
             through: 'recipeIngredientJoin',
-            foreignKey: "recipeUuid"
+            foreignKey: "ingredientUuid"
         });
     }
     return Ingredient;
