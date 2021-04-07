@@ -6,215 +6,281 @@
     "description": "The root schema comprises the entire JSON document.",
     "default": {},
     "examples": [{
-        "Name": "Test Recipe",
-        "ABV": 5.6,
-        "OG": 1.062,
-        "FG": 1.01,
-        "IBU": 77,
-        "public": false,
-        "shareable": false,
-        "style": "IPA",
-        "active": true,
-        "instructions": "Blank list of instructions",
-        "Ingredients": [{
-                "key": 1,
-                "Name": "Munich Malt",
-                "quantity": 4
+        "recipeName": "Beth's soup broth",
+        "mealCategory": [
+            "dinner",
+            "snack"
+        ],
+        "dietCategory": [
+            "vegan",
+            "vegetarian",
+            "glutenfree"
+        ],
+        "servingCount": 4,
+        "websiteReference": "https://www.foodrecipe.website",
+        "farenheitTemp": 300,
+        "minuteTimeBake": 15,
+        "minuteTotalTime": 30,
+        "minutePrepTime": 15,
+        "instructions": "Add vegetable broth to a pot of boiling water and stir in other seasoning to get the right flavor.",
+        "toolsNeeded": "A big pot. A stove. a ladel",
+        "ingredients": [{
+                "label": "vegetable soup stock",
+                "measurement": "tablespoon",
+                "quantity": 4,
+                "prepInstructions": "gelled soup stock",
+                "additionalInfo": "I like the kind that I find at SuperSaverSmart"
             },
             {
-                "key": 2,
-                "Name": "Citra",
-                "quantity": 2
-            },
-            {
-                "key": 3,
-                "Name": "Water",
-                "quantity": 7
+                "label": "water",
+                "measurement": "cup",
+                "quantity": 4,
+                "prepInstructions": "deionized",
+                "additionalInfo": "you can also use distilled"
             }
         ]
     }],
     "required": [
-        "Name",
-        "ABV",
-        "OG",
-        "FG",
-        "IBU",
-        "public",
-        "shareable",
-        "styleId",
-        "active",
-        "instructions",
-        "Ingredients",
-        "userId"
+        "recipeName"
     ],
     "properties": {
-        "Name": {
-            "$id": "#/properties/Name",
+        "recipeName": {
+            "$id": "#/properties/recipeName",
             "type": "string",
-            "title": "The Name schema",
+            "title": "The recipeName schema",
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "Test Recipe"
+                "Beth's soup broth"
             ]
         },
-        "ABV": {
-            "$id": "#/properties/ABV",
-            "type": "number",
-            "title": "The ABV schema",
+        "mealCategory": {
+            "$id": "#/properties/mealCategory",
+            "type": "array",
+            "title": "The mealCategory schema",
             "description": "An explanation about the purpose of this instance.",
-            "default": 0.0,
+            "default": [],
             "examples": [
-                5.6
-            ]
+                [
+                    "dinner",
+                    "snack"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/mealCategory/items",
+                "anyOf": [{
+                    "$id": "#/properties/mealCategory/items/anyOf/0",
+                    "type": "string",
+                    "title": "The first anyOf schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "dinner",
+                        "snack"
+                    ]
+                }]
+            }
         },
-        "OG": {
-            "$id": "#/properties/OG",
-            "type": "number",
-            "title": "The OG schema",
+        "dietCategory": {
+            "$id": "#/properties/dietCategory",
+            "type": "array",
+            "title": "The dietCategory schema",
             "description": "An explanation about the purpose of this instance.",
-            "default": 0.0,
+            "default": [],
             "examples": [
-                1.062
-            ]
+                [
+                    "vegan",
+                    "vegetarian"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/dietCategory/items",
+                "anyOf": [{
+                    "$id": "#/properties/dietCategory/items/anyOf/0",
+                    "type": "string",
+                    "title": "The first anyOf schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "vegan",
+                        "vegetarian"
+                    ]
+                }]
+            }
         },
-        "FG": {
-            "$id": "#/properties/FG",
-            "type": "number",
-            "title": "The FG schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": 0.0,
-            "examples": [
-                1.01
-            ]
-        },
-        "IBU": {
-            "$id": "#/properties/IBU",
+        "servingCount": {
+            "$id": "#/properties/servingCount",
             "type": "integer",
-            "title": "The IBU schema",
-            "description": "An explanation about the purpose of this instance.",
+            "title": "The servingCount schema",
+            "description": "The number of servings this dish makes",
             "default": 0,
             "examples": [
-                77
+                4
             ]
         },
-        "public": {
-            "$id": "#/properties/public",
-            "type": "boolean",
-            "title": "The public schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": false,
-            "examples": [
-                false
-            ]
-        },
-        "shareable": {
-            "$id": "#/properties/shareable",
-            "type": "boolean",
-            "title": "The shareable schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": false,
-            "examples": [
-                false
-            ]
-        },
-        "style": {
-            "$id": "#/properties/style",
+        "websiteReference": {
+            "$id": "#/properties/websiteReference",
             "type": "string",
-            "title": "The style schema",
-            "description": "An explanation about the purpose of this instance.",
+            "title": "The websiteReference schema",
+            "description": "A an external website where this recipe can be found",
             "default": "",
             "examples": [
-                "IPA"
+                "https://www.foodrecipe.website"
             ]
         },
-        "active": {
-            "$id": "#/properties/active",
-            "type": "boolean",
-            "title": "The active schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": false,
+        "farenheitTemp": {
+            "$id": "#/properties/farenheitTemp",
+            "type": "integer",
+            "title": "The farenheitTemp schema",
+            "description": "The preheating temperature to use with this dish",
+            "default": 0,
             "examples": [
-                true
+                300
+            ]
+        },
+        "minuteTimeBake": {
+            "$id": "#/properties/minuteTimeBake",
+            "type": "integer",
+            "title": "The minuteTimeBake schema",
+            "description": "The amount of time needed to bake this dish",
+            "default": 0,
+            "examples": [
+                15
+            ]
+        },
+        "minuteTotalTime": {
+            "$id": "#/properties/minuteTotalTime",
+            "type": "integer",
+            "title": "The minuteTotalTime schema",
+            "description": "The amount of time needed to make this dish from start to finish",
+            "default": 0,
+            "examples": [
+                30
+            ]
+        },
+        "minutePrepTime": {
+            "$id": "#/properties/minutePrepTime",
+            "type": "integer",
+            "title": "The minutePrepTime schema",
+            "description": "The amount of time needed to prep this dish",
+            "default": 0,
+            "examples": [
+                15
             ]
         },
         "instructions": {
             "$id": "#/properties/instructions",
             "type": "string",
             "title": "The instructions schema",
-            "description": "An explanation about the purpose of this instance.",
+            "description": "A written set of instructions for this recipe.",
             "default": "",
             "examples": [
-                "Blank list of instructions"
+                "Add vegetable broth to a pot of boiling water and stir in other seasoning to get the right flavor."
             ]
         },
-        "Ingredients": {
-            "$id": "#/properties/Ingredients",
+        "toolsNeeded": {
+            "$id": "#/properties/toolsNeeded",
+            "type": "string",
+            "title": "The toolsNeeded schema",
+            "description": "A written descirption of tools needed to make.",
+            "default": "",
+            "examples": [
+                "A big pot. A stove. a ladel"
+            ]
+        },
+        "ingredients": {
+            "$id": "#/properties/ingredients",
             "type": "array",
-            "title": "The Ingredients schema",
-            "description": "An explanation about the purpose of this instance.",
+            "title": "The ingredients schema",
+            "description": "Ingredients that the recipe will be built on.",
             "default": [],
             "examples": [
                 [{
-                        "key": 1,
-                        "Name": "Munich Malt",
-                        "quantity": 4
+                        "label": "vegetable soup stock",
+                        "measurement": "tablespoon",
+                        "quantity": 4,
+                        "prepInstructions": "gelled soup stock",
+                        "additionalInfo": "I like the kind that I find at SuperSaverSmart"
                     },
                     {
-                        "key": 2,
-                        "Name": "Citra",
-                        "quantity": 2
+                        "label": "water",
+                        "measurement": "cup",
+                        "quantity": 4,
+                        "prepInstructions": "deionized",
+                        "additionalInfo": "you can also use distilled"
                     }
                 ]
             ],
             "additionalItems": true,
             "items": {
-                "$id": "#/properties/Ingredients/items",
+                "$id": "#/properties/ingredients/items",
                 "anyOf": [{
-                    "$id": "#/properties/Ingredients/items/anyOf/0",
+                    "$id": "#/properties/ingredients/items/anyOf/0",
                     "type": "object",
                     "title": "The first anyOf schema",
-                    "description": "An explanation about the purpose of this instance.",
+                    "description": "Ingredients that the recipe will be built on",
                     "default": {},
                     "examples": [{
-                        "key": 1,
-                        "Name": "Munich Malt",
-                        "quantity": 4
+                        "label": "vegetable soup stock",
+                        "measurement": "tablespoon",
+                        "quantity": 4,
+                        "prepInstructions": "gelled soup stock",
+                        "additionalInfo": "I like the kind that I find at SuperSaverSmart"
                     }],
                     "required": [
-                        "key",
-                        "Name",
-                        "quantity"
+                        "label"
                     ],
                     "properties": {
-                        "key": {
-                            "$id": "#/properties/Ingredients/items/anyOf/0/properties/key",
-                            "type": "integer",
-                            "title": "The Name schema",
-                            "description": "An explanation about the purpose of this instance.",
-                            "default": 0,
-                            "examples": [
-                                1
-                            ]
-                        },
-                        "Name": {
-                            "$id": "#/properties/Ingredients/items/anyOf/0/properties/Name",
+                        "label": {
+                            "$id": "#/properties/ingredients/items/anyOf/0/properties/label",
                             "type": "string",
-                            "title": "The Name schema",
-                            "description": "An explanation about the purpose of this instance.",
+                            "title": "The label schema",
+                            "description": "the label of this ingredient.",
                             "default": "",
                             "examples": [
-                                "Munich Malt"
+                                "vegetable soup stock", "pears", "cheddar cheese"
+                            ]
+                        },
+                        "measurement": {
+                            "$id": "#/properties/ingredients/items/anyOf/0/properties/measurement",
+                            "type": "string",
+                            "title": "The measurement schema",
+                            "description": "the measurement this ingredient is applied with.",
+                            "default": "",
+                            "examples": [
+                                "tablespoon", "cup", "oz", "whole"
                             ]
                         },
                         "quantity": {
-                            "$id": "#/properties/Ingredients/items/anyOf/0/properties/quantity",
+                            "$id": "#/properties/ingredients/items/anyOf/0/properties/quantity",
                             "type": "number",
                             "title": "The quantity schema",
-                            "description": "An explanation about the purpose of this instance.",
+                            "description": "given the measurement provided. How many of that measurement?",
                             "default": 0,
                             "examples": [
                                 4
+                            ]
+                        },
+                        "prepInstructions": {
+                            "$id": "#/properties/ingredients/items/anyOf/0/properties/prepInstructions",
+                            "type": "string",
+                            "title": "The prepInstructions schema",
+                            "description": "If the ingredients need to be chopped, or canned, or peeled. This is the way to communicate that",
+                            "default": "",
+                            "examples": [
+                                "gelled soup stock"
+                            ]
+                        },
+                        "additionalInfo": {
+                            "$id": "#/properties/ingredients/items/anyOf/0/properties/additionalInfo",
+                            "type": "string",
+                            "title": "The additionalInfo schema",
+                            "description": "The user can populate this entry with more background information",
+                            "default": "",
+                            "examples": [
+                                "I like the kind that I find at SuperSaverSmart"
                             ]
                         }
                     },
