@@ -3,8 +3,8 @@ const Recipe = require('../models').Recipe;
 const Ingredient = require('./ingredients');
 const Op = require('../models/').Sequelize.Op;
 const RecipeIngredientJoin = require('./recipeIngredientJoin');
-const RecipeIngredientModel = require('../models').RecipeIngredientJoin;
-const Ingredientmodel = require('../models').Ingredient;
+const recipeIngredientModel = require('../models').RecipeIngredientJoin;
+const ingredientmodel = require('../models').Ingredient;
 const userModel = require('../models').User;
 
 /**
@@ -135,32 +135,9 @@ const getFullRecipe = async function(filter) {
     whereclause = {};
     let offsetClause = {};
     let limitClause = {};
-    if (filter === undefined) {
-        console.log('Error: no token supplied', filter);
-        return { error: true, message: 'No Token supplied. Token required to retrieve full recipe' };
-    }
-    if (!filter.token) {
-        console.log('Error: no token supplied', filter);
-        return { error: true, message: 'No Token supplied. Token required to retrieve full recipe' };
-    }
-    if (!filter.isAdmin && !filter.isUser) {
-        whereclause.public = {
-            [Op.eq]: true
-        };
-    }
-    if (filter.name) {
-        whereclause.Name = {
-            [Op.iLike]: '%' + filter.name + '%'
-        };
-    }
-    if (filter.style) {
-        whereclause.styleId = {
-            [Op.iLike]: filter.style
-        };
-    }
-    if (filter.token) {
-        whereclause.token = {
-            [Op.eq]: filter.token
+    if (filter.recipeName) {
+        whereclause.recipeName = {
+            [Op.iLike]: '%' + filter.recipeName + '%'
         };
     }
     if (filter.userId) {
@@ -168,24 +145,9 @@ const getFullRecipe = async function(filter) {
             [Op.eq]: filter.userId
         };
     }
-    if (filter.shareable) {
-        whereclause.shareable = {
-            [Op.eq]: filter.shareable
-        };
-    }
-    if (filter.ABV) {
-        whereclause.ABV = {
-            [Op.eq]: filter.ABV
-        };
-    }
-    if (filter.IBU) {
-        whereclause.IBU = {
-            [Op.eq]: filter.IBU
-        };
-    }
-    if (filter.id) {
-        whereclause.id = {
-            [Op.eq]: filter.id
+    if (filter.recipeUuid) {
+        whereclause.recipeUuid = {
+            [Op.eq]: filter.recipeUuid
         };
     }
     if (filter.offset) {
@@ -193,15 +155,13 @@ const getFullRecipe = async function(filter) {
     } else { offsetClause.offset = 0; }
     if (filter.limit) {
         limitClause.limit = filter.limit;
-    } else { limitClause.limit = 21; }
-    //console.log(whereclause);
+    } else { limitClause.limit = 5; }
     return Recipe
         .findAll({
             raw: true,
             include: [
-                { model: Ingredientmodel, attributes: ["id", "Name"] },
-                { model: styleModel },
-                { model: userModel, attributes: ['userId', 'firstName', 'lastName', 'email'] }
+                userModel,
+                ingredientmodel
             ],
             where: whereclause,
             limitClause,
@@ -209,8 +169,8 @@ const getFullRecipe = async function(filter) {
             //group:['Ingredients.id', 'Recipe.id','Ingredients->recipeIngredients.quantity'],
 
             nest: true,
-            attributes: ['id', 'Name', 'ABV', 'OG', 'FG', 'IBU', 'token',
-                'styleId', 'public', 'shareable', 'instructions', 'userId'
+            attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
+                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId'
             ],
             //}]
         })
@@ -218,7 +178,7 @@ const getFullRecipe = async function(filter) {
             //console.log(result);
             let tempRes = result[0];
             //console.log(tempRes.Ingredients);
-            IngrdeientArray = [];
+            IngredientArray = [];
             //tempRes.Ingredients = [];
             for (index in result) {
                 //console.log(result);
@@ -229,11 +189,14 @@ const getFullRecipe = async function(filter) {
                 //console.log(item.Ingredients.recipeIngredients);
                 //console.log(ing.recipeIngredients);
                 //console.log(result[index].Ingredients)
-                ing.quantity = result[index].Ingredients.recipeIngredients.quantity;
+                ing.quantity = result[index].Ingredients.recipeIngredientJoin.quantity;
+                ing.measurement = result[index].Ingredients.recipeIngredientJoin.measurement;
+                ing.prepInstructions = result[index].Ingredients.recipeIngredientJoin.prepInstructions;
+                ing.additionalInfo = result[index].Ingredients.recipeIngredientJoin.additionalInfo;
                 delete ing.recipeIngredients;
-                IngrdeientArray.push(ing);
+                IngredientArray.push(ing);
             }
-            tempRes.Ingredients = IngrdeientArray;
+            tempRes.Ingredients = IngredientArray;
             //console.log(tempRes);
             return tempRes;
         })
@@ -242,38 +205,21 @@ const getFullRecipe = async function(filter) {
         });
 }
 
-const deleteRecipe = async function(token) {
+const deleteRecipe = async function(recipeUuid) {
     let whereclause = {};
-    if (token == undefined) {
-        console.log('Error: no token supplied', token);
-        return { error: true, message: 'No Token supplied. Token required to retrieve full token' };
+    if (recipeUuid == undefined) {
+        console.log('Error: no recipeUuid supplied', recipeUuid);
+        return { error: true, message: 'No recipeUuid supplied. recipeUuid required to retrieve full recipeUuid' };
     }
-    whereclause.token = {
-        [Op.eq]: token
+    whereclause.recipeUuid = {
+        [Op.eq]: recipeUuid
     };
-    return Recipe
-        .findOne({
-            where: whereclause,
-            attributes: ['id'],
-            raw: true,
-        })
-        .then((result) => {
-            let foundRecipe = {};
-            foundRecipe.id = result.id;
-            foundRecipe.active = false;
-            Recipe.update(
-                    foundRecipe, {
-                        where: { id: foundRecipe.id },
-                        returning: true,
-                        raw: true
-                    })
-                .then((result) => { /*console.log(result);*/ return result; })
-                .catch((updateerror) => { console.log('delete failed', updateerror); });
-        })
-        .catch((error) => {
-            console.log(error);
-            console.log('Error updating the recipe');
-        });
+    const response = await Recipe.findOne({
+        whereclause
+    });
+    if (!response) return { message: "delete unsuccessful" };
+    await response.destroy();
+    return { message: "delete successful" };
 }
 
 const getMyRecipes = async function(userid) {
@@ -296,27 +242,35 @@ const getMyRecipes = async function(userid) {
 }
 
 const updateRecipe = async function(recipe) {
-    if (recipe.token == undefined) { return { error: 'You must submit a token' }; }
-    var res = await Recipe.findOne({
-        where: { token: recipe.token },
+    let whereclause = {};
+    if (recipe.recipeUuid == undefined) { return { error: 'You must submit a recipeUuid' }; }
+
+    whereclause.recipeUuid = {
+        [Op.eq]: recipe.recipeUuid
+    };
+    let res = await Recipe.findOne({
+        where: whereclause,
         raw: true
     });
     if (!res) {
         console.log('recipe doesn\'t exist');
         return { error: true, message: 'The recipe doesn\'t exist. please create it first.' };
     }
-    let returnRecipeIngredients = RecipeIngredient.getRecipeIngredients({ recipeId: recipe.id });
+    let returnRecipeIngredients = RecipeIngredientJoin.getRecipeIngredients({ recipeUuid: recipe.recipeUuid });
     let recipeIngredientList = [];
     for (element in recipe.Ingredients) {
         let indingredient = {};
-        indingredient.Name = recipe.Ingredients[element].Name;
+        indingredient.Name = recipe.Ingredients[element].label;
+        console.log(indingredient);
         await Ingredient
             .createIngredient(indingredient)
             .then((result) => {
                 let recipeIngredientItem = {};
-                recipeIngredientItem.ingredientId = result.id;
-                recipeIngredientItem.quantity = recipe.Ingredients[element].quantity;
-                recipeIngredientItem.recipeId = recipe.id;
+                recipeIngredientItem.ingredientUuid = result.ingredientUuid;
+                recipeIngredientItem.quantity = recipe.ingredients[element].quantity;
+                recipeIngredientItem.measurement = recipe.ingredients[element].measurement;
+                recipeIngredientItem.prepInstructions = recipe.ingredients[element].prepInstructions;
+                recipeIngredientItem.additionalInfo = recipe.ingredients[element].additionalInfo;
                 recipeIngredientList.push(recipeIngredientItem);
             })
             .catch((exception) => {
@@ -340,13 +294,13 @@ const updateRecipe = async function(recipe) {
             }
         }
         if (altered || newRi) {
-            RecipeIngredient.updateOrCreateRecipeIngredient(newIngredient);
+            RecipeIngredientJoin.updateOrCreateRecipeIngredient(newIngredient);
         }
     }
     return Recipe
         .update(
             newRecipe, {
-                where: { id: newRecipe.id },
+                where: { recipeUuid: newRecipe.recipeUuid },
                 returning: true,
                 raw: true
             })

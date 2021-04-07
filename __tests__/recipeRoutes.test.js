@@ -17,6 +17,9 @@ describe("Auth Routes Test", function() {
     beforeEach(async function() {
 
         await db.sequelize.query('DELETE FROM "Users"');
+        await db.sequelize.query('DELETE FROM "Recipes"');
+        await db.sequelize.query('DELETE FROM "Ingredients"');
+        await db.sequelize.query('DELETE FROM "recipeIngredientJoins"');
         let u1 = await User.createUser({
             email: "asdf@asdf.com",
             password: "password",
@@ -28,6 +31,29 @@ describe("Auth Routes Test", function() {
             userName: "Test2",
             isAdmin: true
         });
+        const newRecipe = {
+            recipeName: "test2",
+            servingCount: 5,
+            farenheitTemp: 250,
+            minuteTotalTime: 45,
+            instructions: "Hello there",
+            toolsNeeded: "My old friend",
+            ingredients: [{
+                    quantity: 20,
+                    measurement: "cup",
+                    label: "fish",
+                    prepInstructions: "chopped",
+                    additionalInfo: "my favorite"
+                        //}
+                },
+                {
+                    quantity: 5,
+                    measurement: "tablespoon",
+                    label: "broccoli"
+                }
+            ]
+        };
+
     });
 
     /**

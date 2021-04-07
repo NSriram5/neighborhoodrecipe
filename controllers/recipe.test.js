@@ -89,8 +89,80 @@ describe("Test recipe controller functions", function() {
             const joins = await RecipeIngredientJoin.getRecipeIngredients({ recipeUuid: create.recipeUuid });
             expect(joins.length).toBeGreaterThan(0);
         });
-
     });
+
+    /**
+     * Get the more detailed view of the recipe
+     */
+    describe("Give the detailed breakdown on a recipe", function() {
+        test("Can provide a detailed view of a recipe", async function() {
+            const newRecipe = {
+                recipeName: "test2",
+                servingCount: 5,
+                farenheitTemp: 250,
+                minuteTotalTime: 45,
+                instructions: "Hello there",
+                toolsNeeded: "My old friend",
+                ingredients: [{
+                        quantity: 20,
+                        measurement: "cup",
+                        label: "fish",
+                        prepInstructions: "chopped",
+                        additionalInfo: "my favorite"
+                    },
+                    {
+                        quantity: 5,
+                        measurement: "tablespoon",
+                        label: "broccoli"
+                    }
+                ]
+            };
+            const create = await Recipe.createRecipe(newRecipe);
+            const found = await Recipe.getFullRecipe({ recipeName: "test2" });
+            expect(found.servingCount).toEqual(5);
+            expect(found.Ingredients.length).toEqual(2);
+
+        });
+    });
+
+    /**
+     * Delete a recipe
+     */
+    describe("Delete a recipe", function() {
+        test("Can delete a recipe", async function() {
+            const result = await Recipe.deleteRecipe({ recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607' });
+            expect(result.message).toEqual("delete successful");
+            const find = await Recipe.getRecipe({ recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607' });
+            expect(find.count).toEqual(0);
+        });
+    });
+
+    /**
+     * Update a recipe
+     */
+    describe("Update a recipe", function() {
+        test("Can update a recipe", async function() {
+            let update = {
+                recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607',
+                recipeName: 'soup for someone else',
+                instructions: 'I just realized we needed to have instructions',
+                ingredients: [{
+                    quantity: .25,
+                    measurement: "teaspoon",
+                    label: "pineapples",
+                    prepInstructions: "prepared"
+                }]
+            }
+            let result = await Recipe.updateRecipe(update);
+            result = await Recipe.getFullRecipe({ recipeUuid: update.recipeUuid });
+            expect(result).toEqual(expect.objectContaining({
+                recipeName: 'soup for someone else',
+                instructions: 'I just realized we needed to have instructions',
+            }))
+            expect(result.Ingredients.length).toEqual(1);
+        })
+    })
+
     afterAll(async function() {
         await db.sequelize.close();
     });

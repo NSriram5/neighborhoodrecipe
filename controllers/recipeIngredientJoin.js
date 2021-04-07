@@ -2,7 +2,6 @@ const RecipeIngredientJoin = require('../models/').recipeIngredientJoin;
 const Op = require('../models').Sequelize.Op;
 
 const bulkCreate = async function(recipeIngredientList) {
-    console.log(recipeIngredientList);
     return RecipeIngredientJoin
         .bulkCreate(recipeIngredientList)
         .then((result) => {
