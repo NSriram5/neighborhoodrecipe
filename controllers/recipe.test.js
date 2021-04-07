@@ -187,6 +187,6 @@ describe("Test recipe controller functions", function() {
     })
 
     afterAll(async function() {
-        await db.sequelize.close();
+        //await db.sequelize.close();
     });
-})
+});

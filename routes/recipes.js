@@ -3,8 +3,9 @@
 /** Routes for recipes. */
 
 const jsonschema = require("jsonschema");
-
-const Recipe = require("../controllers/user");
+const recipeNew = require("../schemas/recipeNew.json");
+const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
+const Recipe = require("../controllers/recipe");
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");
@@ -43,6 +44,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
             const errs = validator.errors.map(e => e.stack);
             throw new BadRequestError(errs);
         }
+        req.body.userUuId = res.locals.user.userUuId;
         const recipe = await Recipe.createRecipe(req.body);
 
         return res.json({ validMessage: "Recipe has been created" });
@@ -53,7 +55,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
 });
 
 /**
- * PATCH /[uuid] => render updated recipe pages
+ * PATCH /[uuid] => update recipe in the backend
  * 
  * Returns a json of the new recipe
  * 
@@ -61,8 +63,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
  */
 router.patch("/", ensureLoggedIn, async function(req, res, next) {
     try {
-        const recipe = await Recipe.getFullRecipe({ token: req.body.token, isAdmin: true });
-
+        const recipe = await Recipe.getFullRecipe({ recipeUuid: req.body.recipeUuid, isAdmin: true });
         if (res.locals.user.userId != recipe.userUuId && !res.locals.user.admin) {
             throw new ForbiddenError("Only an admin or the user of this account can update these details");
         }
@@ -74,7 +75,7 @@ router.patch("/", ensureLoggedIn, async function(req, res, next) {
         }
         req.body["recipeUuid"] = recipe.recipeUuid;
         const updated = await Recipe.updateRecipe(req.body);
-        return res.json({ recipe: updated });
+        return res.json(updated[1][0]);
     } catch (err) {
         return next(err);
     }

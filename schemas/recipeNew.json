@@ -41,18 +41,7 @@
         ]
     }],
     "required": [
-        "recipeName",
-        "mealCategory",
-        "dietCategory",
-        "servingCount",
-        "websiteReference",
-        "farenheitTemp",
-        "minuteTimeBake",
-        "minuteTotalTime",
-        "minutePrepTime",
-        "instructions",
-        "toolsNeeded",
-        "ingredients"
+        "recipeName"
     ],
     "properties": {
         "recipeName": {
@@ -241,11 +230,7 @@
                         "additionalInfo": "I like the kind that I find at SuperSaverSmart"
                     }],
                     "required": [
-                        "label",
-                        "measurement",
-                        "quantity",
-                        "prepInstructions",
-                        "additionalInfo"
+                        "label"
                     ],
                     "properties": {
                         "label": {

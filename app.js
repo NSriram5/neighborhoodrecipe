@@ -7,7 +7,7 @@ const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 //const usersRoutes = require("./routes/users");
-//const recipesRoutes = require("./routes/recipes");
+const recipesRoutes = require("./routes/recipes");
 //const ingredientsRoutes = require("./routes/ingredients");
 //const { getUser } = require("./controllers/user");
 const user = require("./controllers/user");
@@ -25,8 +25,8 @@ app.use(authenticateJWT);
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/auth", authRoutes);
+app.use("/recipes", recipesRoutes);
 //app.use("/users", usersRoutes);
-//app.use("/recipes", recipesRoutes);
 //app.use("/ingredients", ingredientsRoutes);
 
 /** Handle 404 errors -- this matches everything */

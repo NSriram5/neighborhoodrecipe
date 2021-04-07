@@ -4,6 +4,11 @@ const jwt = require("jsonwebtoken");
 const app = require("../app");
 const db = require('../models/index');
 const User = require('../controllers/user');
+const Recipe = require('../controllers/recipe');
+const recipe = require("../models/recipe");
+
+let token;
+let sampleRecipeUuid;
 
 describe("Auth Routes Test", function() {
     beforeAll(async function() {
@@ -15,7 +20,6 @@ describe("Auth Routes Test", function() {
             });
     });
     beforeEach(async function() {
-
         await db.sequelize.query('DELETE FROM "Users"');
         await db.sequelize.query('DELETE FROM "Recipes"');
         await db.sequelize.query('DELETE FROM "Ingredients"');
@@ -27,12 +31,12 @@ describe("Auth Routes Test", function() {
         });
         let u2 = await User.createUser({
             email: "jklfuntimes@jklfuntimes.com",
-            password: "badpassword",
+            password: "test",
             userName: "Test2",
             isAdmin: true
         });
         const newRecipe = {
-            recipeName: "test2",
+            recipeName: "test1",
             servingCount: 5,
             farenheitTemp: 250,
             minuteTotalTime: 45,
@@ -53,64 +57,91 @@ describe("Auth Routes Test", function() {
                 }
             ]
         };
-
+        let r1 = await Recipe.createRecipe(newRecipe);
+        sampleRecipeUuid = r1.recipeUuid;
+        let response = await request(app)
+            .post("/auth/token")
+            .send({ userName: "Test2", password: "test" });
+        token = response.body.token;
     });
 
     /**
-     * Post /auth/register
-     * return token
+     * GET /recipes
+     * return list of recipes
      */
-    // describe("POST /auth/register", function() {
-    //     test("can register", async function() {
-    //         let response = await request(app)
-    //             .post("/auth/register")
-    //             .send({
-    //                 email: "blackhawk@birthday.com",
-    //                 password: "secret",
-    //                 userName: "George Gregory"
-    //             });
-    //         let token = response.body.token;
-    //         expect(jwt.decode(token)).toEqual({ iat: expect.any(Number), userName: "George Gregory", isAdmin: false })
-    //     });
-    // });
+    describe("GET /recipes", function() {
+        test("can get a list of recipes", async function() {
+            let response = await request(app)
+                .get('/recipes')
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.body.recipes.count).toEqual(1);
+        });
+        test("cannot get a list of recipes if not logged in", async function() {
+            let response = await request(app)
+                .get("/recipes");
+            expect(response.statusCode).toBe(401);
+        });
+    });
 
     /**
-     * POST /auth/token
-     * returns token
+     * POST /recipes
+     * post a new recipe
      */
-    // describe("POST /auth/token", function() {
-    //     test("can login", async function() {
-    //         console.log("starting login test1");
-    //         let response = await request(app)
-    //             .post("/auth/token")
-    //             .send({ userName: "Test1", password: "password" });
-    //         let token = response.body.token;
-    //         expect(jwt.decode(token)).toEqual({ iat: expect.any(Number), userName: "Test1", isAdmin: false });
-    //     });
-    //     test("can login admin", async function() {
-    //         console.log("starting login test2");
-    //         let response = await request(app)
-    //             .post("/auth/token")
-    //             .send({ userName: "Test2", password: "badpassword" });
-    //         let token = response.body.token;
-    //         expect(jwt.decode(token)).toEqual({ iat: expect.any(Number), userName: "Test2", isAdmin: true });
-    //     });
-    //     test("can't login bad password", async function() {
-    //         let response = await request(app)
-    //             .post("/auth/token")
-    //             .send({ userName: "Test1", password: "badpassword" });
-    //         let token = response.body.token;
-    //         expect(response.statusCode).toEqual(400);
-    //     });
-    //     test("can't login bad username", async function() {
-    //         let response = await request(app)
-    //             .post("/auth/token")
-    //             .send({ userName: "Rabbit", password: "password" });
-    //         let token = response.body.token;
-    //         expect(response.statusCode).toEqual(400);
-    //     });
-    // });
+    describe("POST /recipes", function() {
+        test("can post a new recipe to the route", async function() {
+            const newRecipe = {
+                recipeName: "test2",
+                servingCount: 1,
+                farenheitTemp: 3,
+                minuteTotalTime: 1,
+                instructions: "Hello there",
+                toolsNeeded: "My old friend",
+                ingredients: [{
+                        quantity: 20,
+                        measurement: "cup",
+                        label: "sand",
+                        prepInstructions: "chopped",
+                        additionalInfo: "my favorite"
+                            //}
+                    },
+                    {
+                        quantity: 5,
+                        measurement: "tablespoon",
+                        label: "pins"
+                    }
+                ]
+            };
+            let response = await request(app)
+                .post("/recipes")
+                .send(newRecipe)
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.body.validMessage).toEqual("Recipe has been created");
+            response = await request(app)
+                .get('/recipes')
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.body.recipes.count).toEqual(2);
+        });
+    });
+
+    /**
+     * PATCH /recipes
+     */
+    describe("PATCH /recipes", function() {
+        test("can patch an existing recipe", async function() {
+            const changedInstructions = {
+                recipeUuid: sampleRecipeUuid,
+                instructions: "Lots of cats, so many cats"
+            };
+            let response = await request(app)
+                .patch(`/recipes`)
+                .send(changedInstructions)
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.body.instructions).toEqual(changedInstructions.instructions);
+            debugger;
+        })
+    })
+
     afterAll(async function() {
         await db.sequelize.close();
-    })
+    });
 });
