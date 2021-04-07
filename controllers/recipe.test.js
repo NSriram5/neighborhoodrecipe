@@ -1,6 +1,7 @@
 const app = require("../app");
 const db = require('../models/index');
 const Recipe = require('../controllers/recipe');
+const User = require('../controllers/user');
 const RecipeIngredientJoin = require('../controllers/recipeIngredientJoin');
 
 describe("Test recipe controller functions", function() {
@@ -160,6 +161,28 @@ describe("Test recipe controller functions", function() {
                 instructions: 'I just realized we needed to have instructions',
             }))
             expect(result.Ingredients.length).toEqual(1);
+        })
+    });
+
+    /**
+     * Get a recipe that belongs to a specific user
+     */
+    describe("retrieve a user's recipe", function() {
+        test("make a recipe then retrieve it based on user's uuid", async function() {
+            const user = User.createUser({ password: "password", email: "a", userName: "a", isAdmin: false, disabled: false })
+            const userUuId = user.userUuId;
+            const newRecipe = {
+                recipeName: "test",
+                servingCount: 4,
+                farenheitTemp: 350,
+                minuteTotalTime: 45,
+                instructions: "Hello there",
+                toolsNeeded: "My old friend",
+                userUuId: userUuId
+            };
+            const create = await Recipe.createRecipe(newRecipe);
+            const retrieve = await Recipe.getMyRecipes(userUuId);
+            console.log(retrieve);
         })
     })
 

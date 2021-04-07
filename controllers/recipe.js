@@ -222,17 +222,17 @@ const deleteRecipe = async function(recipeUuid) {
     return { message: "delete successful" };
 }
 
-const getMyRecipes = async function(userid) {
+const getMyRecipes = async function(userUuId) {
     let whereclause = {};
-    whereclause.userId = {
-        [Op.eq]: userid
+    whereclause.userUuId = {
+        [Op.eq]: userUuId
     };
     return Recipe
         .findAll({
             where: whereclause,
             raw: true,
-            attributes: ['id', 'Name', 'ABV', 'OG', 'FG', 'IBU', 'token',
-                'styleId', 'public', 'shareable', 'instructions', 'userId'
+            attributes: ['userUuId', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
+                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled'
             ],
         })
         .catch((error) => {
