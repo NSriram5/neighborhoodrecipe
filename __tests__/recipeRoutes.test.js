@@ -75,7 +75,8 @@ describe("Auth Routes Test", function() {
             let response = await request(app)
                 .get('/recipes')
                 .set('Authorization', `Bearer ${token}`);
-            expect(response.body.recipes.count).toEqual(1);
+            let count = response.body.recipes ? response.body.recipes.count : 0;
+            expect(count).toEqual(1);
         });
         test("cannot get a list of recipes if not logged in", async function() {
             let response = await request(app)
