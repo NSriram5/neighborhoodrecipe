@@ -9,9 +9,9 @@ const createIngredient = async function(ingredient) {
             attributes: ["label", "ingredientUuid"]
         });
         if (created) {
-            console.log("ingredient created");
+            //console.log("ingredient created");
         } else {
-            console.log("ingredient found");
+            //console.log("ingredient found");
         }
         return { ingredientUuid: ing.ingredientUuid, label: ing.label };
     } catch (err) {
@@ -31,7 +31,7 @@ const getIngredient = async function(filter) {
         .findAll({
             where: whereclause,
             attributes: ["label", "dataFound", "flaggedForReview", "ingredientUuid"],
-            raw: true,
+            //raw: true,
         })
         .then((result) => {
             return result[0];
@@ -39,6 +39,24 @@ const getIngredient = async function(filter) {
         .catch(error => {
             console.log(error, 'There was an error getting an ingredient');
         });
+}
+
+const getAutoComplete = async function(partialLabel) {
+    whereclause = {
+        label: {
+            [Op.iLike]: '%' + partialLabel + '%'
+        }
+    };
+    return Ingredient.findAll({
+            where: whereclause,
+            attributes: "label"
+        })
+        .then((result) => {
+            return result;
+        })
+        .catch(error => {
+            throw new ExpressError(error, 400);
+        })
 }
 
 const getAllIngredients = async function(filter) {
@@ -52,7 +70,7 @@ const getAllIngredients = async function(filter) {
     return Ingredient.findAll({
             where: whereclause,
             attributes: ["label", "dataFound", "flaggedForReview", "ingredientUuid"],
-            raw: true,
+            //raw: true,
         })
         .then((result) => { return result; })
         .catch(error => {
@@ -63,5 +81,6 @@ const getAllIngredients = async function(filter) {
 module.exports = {
     createIngredient,
     getIngredient,
-    getAllIngredients
+    getAllIngredients,
+    getAutoComplete
 }

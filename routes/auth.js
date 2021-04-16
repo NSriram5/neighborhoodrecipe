@@ -37,7 +37,7 @@ router.post("/token", async function(req, res, next) {
         req.session.token = token;
         return res.status(201).json({ token });
     } catch (err) {
-        console.log(err);
+        //console.log(err);
         return next(err);
     }
 });

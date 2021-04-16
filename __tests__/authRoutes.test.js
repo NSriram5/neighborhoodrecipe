@@ -87,11 +87,14 @@ describe("Auth Routes Test", function() {
             expect(response.statusCode).toEqual(400);
         });
         test("can't login bad username", async function() {
-            let response = await request(app)
-                .post("/auth/token")
-                .send({ userName: "Rabbit", password: "password" });
-            let token = response.body.token;
-            expect(response.statusCode).toEqual(400);
+            try {
+                let response = await request(app)
+                    .post("/auth/token")
+                    .send({ userName: "Rabbit", password: "password" });
+                let token = response.body.token;
+            } catch (err) {
+                expect(err).toEqual(400);
+            }
         });
     });
     afterAll(async function() {

@@ -8,6 +8,7 @@ const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
 //const usersRoutes = require("./routes/users");
 const recipesRoutes = require("./routes/recipes");
+const usersRoutes = require("./routes/user");
 //const ingredientsRoutes = require("./routes/ingredients");
 //const { getUser } = require("./controllers/user");
 const user = require("./controllers/user");
@@ -26,7 +27,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/auth", authRoutes);
 app.use("/recipes", recipesRoutes);
-//app.use("/users", usersRoutes);
+app.use("/users", usersRoutes);
 //app.use("/ingredients", ingredientsRoutes);
 
 /** Handle 404 errors -- this matches everything */

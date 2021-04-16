@@ -6,6 +6,7 @@ const jsonschema = require("jsonschema");
 const recipeNew = require("../schemas/recipeNew.json");
 const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
 const Recipe = require("../controllers/recipe");
+const User = require("../controllers/user");
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");
@@ -29,6 +30,34 @@ router.get("/", ensureLoggedIn, ensureAdmin, async function(req, res, next) {
         return next(err);
     }
 });
+
+/**
+ * GET /[uuid] => retrieve recipe details from the backend
+ * 
+ * Returns a json of the recipe
+ * 
+ * Authorization required: login
+ */
+router.get("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
+    try {
+        const recipe = await Recipe.getRecipe({ recipeUuid: req.params.recipeUuid });
+        let recipeUser = recipe.rows[0];
+        if (recipeUser.User.userUuId == res.locals.user.userUuId || recipeUser.User.userUuId == null || res.locals.user.isAdmin) {
+            return res.json(recipe);
+        }
+        const connections = await User.getConnections(res.locals.user.userUuId);
+        let accessible = false;
+        for (connection of connections) {
+            if (connection.accepted && (connection.targetUuId == recipe.user.userUuId || connection.requestorUuId == recipe.user.userUuId)) {
+                return res.json(recipe);
+            }
+        }
+        throw new ForbiddenError("You are not connected with the user that owns this recipe");
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+})
 
 /**
  * POST / => post a new recipe
