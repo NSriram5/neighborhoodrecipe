@@ -9,7 +9,7 @@ const userModel = require('../models').User;
 
 /**
  * creates a new recipe
- * @param {*} recipe{}
+ * @param {Object} recipe an object that represents information to build a recipe
  * @returns 
  */
 const createRecipe = async function(recipe) {
@@ -116,13 +116,14 @@ const getRecipe = async function(filter) {
             where: whereclause,
             limitClause,
             offsetClause,
-            raw: true,
             attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
                 'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled'
             ],
+            include: [userModel]
+                //raw: true,
         })
         .then((result) => {
-            console.log('Recipe Found');
+            //console.log('Recipe Found');
             return result;
         })
         .catch(error => {
@@ -166,29 +167,18 @@ const getFullRecipe = async function(filter) {
             where: whereclause,
             limitClause,
             offsetClause,
-            //group:['Ingredients.id', 'Recipe.id','Ingredients->recipeIngredients.quantity'],
-
             nest: true,
             attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
                 'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId'
             ],
-            //}]
         })
         .then((result) => {
-            //console.log(result);
             let tempRes = result[0];
-            //console.log(tempRes.Ingredients);
             IngredientArray = [];
-            //tempRes.Ingredients = [];
             for (index in result) {
-                //console.log(result);
                 let item = result[index];
                 let ing = item.Ingredients;
-                //console.log('this is item?');
-                //console.log(item);
-                //console.log(item.Ingredients.recipeIngredients);
-                //console.log(ing.recipeIngredients);
-                //console.log(result[index].Ingredients)
+
                 ing.quantity = result[index].Ingredients.recipeIngredientJoin.quantity;
                 ing.measurement = result[index].Ingredients.recipeIngredientJoin.measurement;
                 ing.prepInstructions = result[index].Ingredients.recipeIngredientJoin.prepInstructions;
@@ -250,7 +240,7 @@ const updateRecipe = async function(recipe) {
     };
     let res = await Recipe.findOne({
         where: whereclause,
-        raw: true
+        //raw: true
     });
     if (!res) {
         console.log('recipe doesn\'t exist');
@@ -302,7 +292,7 @@ const updateRecipe = async function(recipe) {
             newRecipe, {
                 where: { recipeUuid: newRecipe.recipeUuid },
                 returning: true,
-                raw: true
+                //raw: true
             })
         .then((result) => {
             return result;

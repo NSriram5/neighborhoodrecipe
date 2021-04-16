@@ -1,0 +1,183 @@
+const userUserJoins = require('../models').userUserJoins;
+const Op = require('../models').Sequelize.Op;
+const { BadRequestError, ExpressError, NotFoundError } = require("../expressError");
+
+function checkInputSelfTarget(selfUuId, targetUuId) {
+    if (targetUuId == undefined) {
+        throw new ExpressError('A targetUuId must be provided', 400);
+    }
+    if (selfUuId == undefined) {
+        throw new ExpressError('A selfUuId must be provided', 400);
+    }
+}
+
+const getUserUserConnections = async function(filter) {
+    if (filter == undefined) {
+        return { error: 'You must submit filter criteria' };
+    }
+    let whereclause = {};
+    if (filter.userUuId) {
+        whereclause = {
+            [Op.or]: [{
+                    requestorUuId: {
+                        [Op.eq]: filter.userUuId
+                    }
+                },
+                {
+                    targetUuId: {
+                        [Op.eq]: filter.userUuId
+                    }
+                }
+            ]
+        };
+    } else {
+        if (filter.requestorUuId) {
+            whereclause.requestorUuId = {
+                [Op.eq]: filter.requestorUuId
+            };
+        }
+        if (filter.targetUuId) {
+            whereclause.targetUuId = {
+                [Op.eq]: filter.targetUuId
+            };
+        }
+    }
+    return userUserJoins.findAll({
+        where: whereclause,
+        returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
+        //raw: true
+    }).catch((error) => {
+        console.log(error);
+        return error;
+    })
+};
+
+const checkIfConnected = async function(selfUuId, targetUuId) {
+    checkInputSelfTarget(selfUuId, targetUuId);
+    whereclause = {
+        [Op.or]: [{
+                requestorUuId: {
+                    [Op.eq]: selfUuId
+                },
+                targetUuId: {
+                    [Op.eq]: targetUuId
+                }
+            },
+            {
+                targetUuId: {
+                    [Op.eq]: selfUuId
+                },
+                requestorUuId: {
+                    [Op.eq]: targetUuId
+                }
+            }
+        ]
+    };
+    return userUserJoins.findOne({ whereclause })
+        .then((result) => {
+            if (!result) return false;
+            return result;
+        })
+        .catch((err) => {
+            throw err;
+        });
+}
+
+const getPendingIncConnections = async function(targetUuId) {
+    if (targetUuId == undefined) {
+        throw new ExpressError('A targetUuId must be provided', 400);
+    }
+    let whereclause = {
+        targetUuId: {
+            [Op.eq]: targetUuId
+        },
+        accepted: {
+            [Op.eq]: false
+        }
+
+    };
+    return userUserJoins.findAll({
+        where: whereclause,
+        returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
+        //raw: true
+    }).catch((error) => {
+        console.log(error);
+        return error;
+    })
+}
+const getPendingOutConnections = async function(requestorUuId) {
+    if (requestorUuId == undefined) {
+        return { error: 'A requestorUuId must be provided' };
+    }
+    let whereclause = {
+        requestorUuId: {
+            [Op.eq]: requestorUuId
+        },
+        accepted: {
+            [Op.eq]: false
+        }
+
+    };
+    return userUserJoins.findAll({
+        where: whereclause,
+        returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
+        //raw: true
+    }).catch((error) => {
+        console.log(error);
+        return error;
+    })
+}
+
+const acceptConnection = async function(selfUuId, targetUuId) {
+    checkInputSelfTarget(selfUuId, targetUuId);
+    let whereclause = {
+        targetUuId: {
+            [Op.eq]: selfUuId
+        },
+        requestorUuId: {
+            [Op.eq]: targetUuId
+        }
+    }
+    let change = { accepted: true };
+    let found = await userUserJoins.findOne({ where: whereclause });
+    return found.update(change)
+        .then((result) => {
+            if (result.length == 0) throw new ExpressError("no records updated", 404);
+            return result;
+        })
+        .catch((err) => {
+            return err;
+        });
+
+}
+
+const newConnectionRequest = async function(targetUuId, selfUuId) {
+    const response = await checkIfConnected(selfUuId, targetUuId);
+    if (response) throw new BadRequestError("Connection already exists");
+    return userUserJoins.create({ targetUuId, requestorUuId: selfUuId })
+        .then((result) => {
+            return result
+        })
+        .catch((err) => {
+            return err;
+        });
+}
+
+const removeConnection = async function(targetUuId, selfUuId) {
+    const response = await checkIfConnected(selfUuId, targetUuId);
+    if (!response) throw new NotFoundError("Connection not found")
+    await userUserJoins.destroy({
+        where: { id: response.id }
+    });
+    return { message: "connection between users removed successfully" };
+}
+
+module.exports = {
+    getUserUserConnections,
+    getPendingIncConnections,
+    getPendingOutConnections,
+    checkIfConnected,
+    newConnectionRequest,
+    acceptConnection,
+    removeConnection
+};

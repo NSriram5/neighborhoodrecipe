@@ -33,11 +33,18 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
     User.associate = (models) => {
-        User.hasMany(models.User, {
-            foreignKey: "userUuId",
-            onDelete: 'CASCADE'
-        });
-
+        User.belongsToMany(models.User, {
+                through: 'userUserJoins',
+                as: 'meFriends',
+                foreignKey: 'requestorUuId',
+                onDelete: 'CASCADE'
+            }),
+            User.belongsToMany(models.User, {
+                through: 'userUserJoins',
+                as: 'friendsMe',
+                foreignKey: 'targetUuId',
+                onDelete: 'CASCADE'
+            })
     };
 
     return User;
