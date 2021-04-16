@@ -6,12 +6,12 @@ const bulkCreate = async function(recipeIngredientList) {
         .bulkCreate(recipeIngredientList)
         .then((result) => {
             // console.log(result);
-            console.log('successfully created ingredient-recipe joins');
+            //console.log('successfully created ingredient-recipe joins');
             return result;
         })
         .catch((err) => {
-            console.log(err);
-            console.log('There was an error in the bulk creation of recipe-ingredients');
+            //console.log(err);
+            //console.log('There was an error in the bulk creation of recipe-ingredients');
             return err;
         });
 }
@@ -22,18 +22,21 @@ const getRecipeIngredients = async function(filter) {
     }
     let whereclause = {};
     if (filter.recipeUuid) {
-        whereclause.recipeUuid = filter.recipeUuid;
-    } else if (filter.ingredientUuid) {
-        whereclause.ingredientUuid = filter.ingredientUuid
-    } else {
-        return { error: 'you must submit filter criteria' };
+        whereclause.recipeUuid = {
+            [Op.eq]: filter.recipeUuid
+        };
+    }
+    if (filter.ingredientUuid) {
+        whereclause.ingredientUuid = {
+            [Op.eq]: filter.ingredientUuid
+        };
     }
 
     return RecipeIngredientJoin
         .findAll({
             where: whereclause,
             returning: ['id', 'recipeUuid', 'ingredientUuid', 'quantity', 'measurement', 'prepInstructions', 'additionalInfo'],
-            raw: true
+            //raw: true
         })
         .catch((error) => {
             console.log(error);
@@ -53,7 +56,7 @@ const updateOrCreateRecipeIngredient = async function(recipeIngredient) {
         })
         .catch((err) => {
             console.log(err);
-            console.log('THere was an error in the  creation of recipe ingredients');
+            console.log('There was an error in the  creation of recipe ingredients');
             return err;
         });
 }

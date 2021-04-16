@@ -23,11 +23,22 @@ describe("Test ingredient controller functions", function() {
     describe("Get ingredients", function() {
         test("can get an ingredient that exists", async function() {
             const found = await Ingredient.getIngredient({ label: "pepper" });
-            expect(found).toEqual({ label: "pepper", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f608", dataFound: true, flaggedForReview: true });
+            expect(found).toEqual(expect.objectContaining({ label: "pepper", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f608", dataFound: true, flaggedForReview: true }));
         });
         test("can get more ingredients that exist", async function() {
             const found = await Ingredient.getAllIngredients({ label: "pe" });
-            expect(found).toEqual([{ label: "pepper", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f608", dataFound: true, flaggedForReview: true }, { label: "pep", ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f609", dataFound: true, flaggedForReview: true }]);
+            expect(found).toContainEqual(expect.objectContaining({
+                label: "pepper",
+                ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f608",
+                dataFound: true,
+                flaggedForReview: true
+            }));
+            expect(found).toContainEqual(expect.objectContaining({
+                label: "pep",
+                ingredientUuid: "40e6215d-b5c6-4896-987c-f30f3678f609",
+                dataFound: true,
+                flaggedForReview: true
+            }));
         });
     });
 

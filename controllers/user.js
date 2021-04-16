@@ -1,9 +1,16 @@
 const Sequelize = require('sequelize');
 const User = require('../models').User;
+const UserUserJoins = require('./userUserJoins');
 const Op = require('../models/').Sequelize.Op;
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config/config.js");
+const { BadRequestError, ExpressError } = require("../expressError");
 
+/**
+ * Creates a user 
+ * @param {Object} user an object representing the user to be stored in database
+ * @returns the user object if successful
+ */
 const createUser = async function(user) {
     if (user.password) {
         user.passwordHash = await bcrypt.hash(user.password, BCRYPT_WORK_FACTOR);
@@ -11,6 +18,10 @@ const createUser = async function(user) {
     } else {
         console.log('No Password provided');
         return false;
+    }
+    let userNameSearch = await this.getUsers({ userName: user.userName });
+    if (userNameSearch.length > 0) {
+        throw new BadRequestError("Username already taken");
     }
     return User
         .create(user)
@@ -20,10 +31,17 @@ const createUser = async function(user) {
             return userResult;
         })
         .catch(error => {
-            console.log(error, 'There was an error in the create');
+            throw new ExpressError(error, 400);
         });
 }
-const getUser = async function(filter, authenticate = false) {
+
+/**
+ * Gets a list of users specified by a filter
+ * @param {Object} filter the parameters of a filter 
+ * @param {Boolean} authenticate (Optional) if this get request is being used to authenticate a user. Defaults to false
+ * @returns {Object} A list of users specified
+ */
+const getUsers = async function(filter, authenticate = false) {
     let whereclause
     whereclause = {};
     if (filter == undefined) { filter = {}; }
@@ -49,30 +67,36 @@ const getUser = async function(filter, authenticate = false) {
     return User
         .findAll({
             where: whereclause,
-            raw: true,
+            //raw: true,
             attributes: attributesclause,
         })
         .then((result) => {
             return result;
         })
         .catch(error => {
-            console.log(error, 'There was an error in the get');
+            throw new ExpressError(error, 400);
         });
 }
+
+/**
+ * Updates a user given a user object containing the user's UuId
+ * @param {Object} user 
+ * @returns {Object} updated user on success
+ */
 const updateUser = async function(user) {
     let whereclause = {};
     if (user.password) {
         user.passwordHash = await bcrypt.hash(user.password, BCRYPT_WORK_FACTOR);
         delete user.password;
     }
-    whereclause.userId = user.userId;
+    whereclause.userUuId = user.userUuId;
     return User
         .update(
             user, {
                 returning: ['email', 'userName', 'isAdmin',
                     'disabled', 'userUuId'
                 ],
-                raw: true,
+                //raw: true,
                 where: whereclause
             }
         )
@@ -81,17 +105,27 @@ const updateUser = async function(user) {
             return result;
         })
         .catch(error => {
-            console.log(error, 'There was an error updating this user');
+            throw new ExpressError(error, 400);
         });
 }
+
+/**
+ * Takes the username and password and returns the first user that matches the first username that 
+ * agrees with the password.
+ * @param {String} userName 
+ * @param {String} password 
+ * @returns {Boolean} success of the authentication attempt
+ */
 const authenticateUser = async function(userName, password) {
     try {
-        const user = await this.getUser({ userName: userName }, true);
-        if (user[0] && user[0].passwordHash) {
-            const valid = await bcrypt.compare(password, user[0].passwordHash);
-            delete user[0].passwordHash;
-            if (valid === true) {
-                return user[0];
+        const users = await this.getUsers({ userName: userName }, true);
+        for (user of users) {
+            if (user && user.passwordHash) {
+                const valid = await bcrypt.compare(password, user.passwordHash);
+                delete user.passwordHash;
+                if (valid === true) {
+                    return user;
+                }
             }
         }
         console.log("There was a problem with comparing the password hash");
@@ -101,7 +135,55 @@ const authenticateUser = async function(userName, password) {
         console.log(error, 'There was an error authenticating the user');
         return false;
     }
+};
+
+const inviteUser = async function(selfUserUuId, targetUserUuid) {
+    try {
+        return UserUserJoins
+            .newConnectionRequest(targetUserUuid, selfUserUuId)
+            .then((result) => {
+                return result;
+            });
+    } catch (error) {
+        throw new ExpressError(error, 400);
+    };
+};
+
+const acceptUser = async function(selfUserUuId, requestorUuId) {
+    try {
+        return UserUserJoins
+            .acceptConnection(selfUserUuId, requestorUuId)
+            .then((result) => {
+                return result;
+            });
+    } catch (error) {
+        throw new ExpressError(error, 400);
+    };
+};
+
+const getConnections = async function(selfUserUuId) {
+    try {
+        let connections = await UserUserJoins.getUserUserConnections({ userUuId: selfUserUuId });
+        return connections;
+    } catch (error) {
+        throw new ExpressError(error, 400);
+    }
 }
+
+const removeConnection = async function(selfUserUuId, targetUuId) {
+    try {
+        let connections = await UserUserJoins.removeConnection(selfUserUuId, targetUuId);
+        return { message: "Connection removed successfully" };
+    } catch (error) {
+        throw new ExpressError(error, 400);
+    }
+}
+
+/**
+ * Deletes the selected user
+ * @param {String} userUuId the user's UuId 
+ * @returns {Object} 
+ */
 const disableUser = async function(userUuId) {
     let whereclause = {};
     whereclause.userUuId = userUuId;
@@ -118,14 +200,19 @@ const disableUser = async function(userUuId) {
         })
         .catch(error => {
             console.log(error, 'There was an error with disabling this user');
+            throw new ExpressError(error, 400);
         });
+};
 
-    return results;
-}
+
 module.exports = {
     createUser,
-    getUser,
+    getUsers,
     updateUser,
     authenticateUser,
-    disableUser
+    disableUser,
+    inviteUser,
+    acceptUser,
+    getConnections,
+    removeConnection
 }

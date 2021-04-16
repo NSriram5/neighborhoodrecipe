@@ -26,7 +26,7 @@ describe("Test recipe controller functions", function() {
     describe("Get recipe", function() {
         test("can get a recipe that exists", async function() {
             const found = await Recipe.getRecipe({ recipeName: 'soup for my family' });
-            expect(found.rows[0]).toEqual({ recipeName: "soup for my family", recipeUuid: "40e6215d-b5c6-4896-987c-f30f3678f607", disabled: true, dietCategory: null, farenheitTemp: null, instructions: null, mealCategory: null, minutePrepTime: null, minuteTimeBake: null, minuteTotalTime: null, servingCount: null, toolsNeeded: null, websiteReference: null });
+            expect(found.rows[0]).toEqual(expect.objectContaining({ recipeName: "soup for my family", recipeUuid: "40e6215d-b5c6-4896-987c-f30f3678f607", disabled: true, dietCategory: null, farenheitTemp: null, instructions: null, mealCategory: null, minutePrepTime: null, minuteTimeBake: null, minuteTotalTime: null, servingCount: null, toolsNeeded: null, websiteReference: null }));
         });
         test("doesn't get a recipe if the filter is looks for the wrong thing", async function() {
             const found = await Recipe.getRecipe({ recipeName: 'shamsham shamina' });
@@ -159,7 +159,7 @@ describe("Test recipe controller functions", function() {
             expect(result).toEqual(expect.objectContaining({
                 recipeName: 'soup for someone else',
                 instructions: 'I just realized we needed to have instructions',
-            }))
+            }));
             expect(result.Ingredients.length).toEqual(1);
         })
     });
@@ -182,11 +182,11 @@ describe("Test recipe controller functions", function() {
             };
             const create = await Recipe.createRecipe(newRecipe);
             const retrieve = await Recipe.getMyRecipes(userUuId);
-            console.log(retrieve);
+            //console.log(retrieve);
         })
     })
 
     afterAll(async function() {
-        //await db.sequelize.close();
+        await db.sequelize.close();
     });
 });

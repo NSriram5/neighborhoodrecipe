@@ -59,7 +59,12 @@ describe("Auth Routes Test", function() {
                 .post("/auth/token")
                 .send({ userName: "Test1", password: "password" });
             let token = response.body.token;
-            expect(jwt.decode(token)).toEqual({ iat: expect.any(Number), userUuId: expect.any(String), userName: "Test1", isAdmin: false });
+            expect(jwt.decode(token)).toEqual({
+                iat: expect.any(Number),
+                userUuId: expect.any(String),
+                userName: "Test1",
+                isAdmin: false
+            });
         });
         test("can login admin", async function() {
             console.log("starting login test2");
@@ -67,7 +72,12 @@ describe("Auth Routes Test", function() {
                 .post("/auth/token")
                 .send({ userName: "Test2", password: "badpassword" });
             let token = response.body.token;
-            expect(jwt.decode(token)).toEqual({ iat: expect.any(Number), userUuId: expect.any(String), userName: "Test2", isAdmin: true });
+            expect(jwt.decode(token)).toEqual({
+                iat: expect.any(Number),
+                userUuId: expect.any(String),
+                userName: "Test2",
+                isAdmin: true
+            });
         });
         test("can't login bad password", async function() {
             let response = await request(app)
@@ -77,11 +87,14 @@ describe("Auth Routes Test", function() {
             expect(response.statusCode).toEqual(400);
         });
         test("can't login bad username", async function() {
-            let response = await request(app)
-                .post("/auth/token")
-                .send({ userName: "Rabbit", password: "password" });
-            let token = response.body.token;
-            expect(response.statusCode).toEqual(400);
+            try {
+                let response = await request(app)
+                    .post("/auth/token")
+                    .send({ userName: "Rabbit", password: "password" });
+                let token = response.body.token;
+            } catch (err) {
+                expect(err).toEqual(400);
+            }
         });
     });
     afterAll(async function() {

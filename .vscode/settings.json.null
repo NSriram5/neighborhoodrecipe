@@ -1,0 +1,5 @@
+{
+    "jest.enableInlineErrorMessages": true,
+    "jest.pathToJest": "npm test --",
+    "jest.showCoverageOnLoad": true
+}

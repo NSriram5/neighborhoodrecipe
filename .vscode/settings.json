@@ -1,0 +1,7 @@
+{
+    "jest.enableSnapshotPreviews": false,
+    "jest.enableSnapshotUpdateMessages": false,
+    "jest.runAllTestsFirst": false,
+    "jestrunner.disableCodeLens": true,
+    "jest.pathToJest": "npm test  -- --runInBand"
+}
