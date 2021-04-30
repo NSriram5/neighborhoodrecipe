@@ -7,6 +7,15 @@ const recipeIngredientModel = require('../models').RecipeIngredientJoin;
 const ingredientmodel = require('../models').Ingredient;
 const userModel = require('../models').User;
 
+const allAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
+];
+
+const previewAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'photoUrl'
+];
+
+
 /**
  * creates a new recipe
  * @param {Object} recipe an object that represents information to build a recipe
@@ -41,7 +50,7 @@ const createRecipe = async function(recipe) {
     return await Recipe
         .create(
             newRecipe, {
-                returning: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp', 'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled']
+                returning: previewAttributes
             })
         .then(async(result) => {
             for (ri in recipeIngredientList) {
@@ -116,9 +125,7 @@ const getRecipe = async function(filter) {
             where: whereclause,
             limitClause,
             offsetClause,
-            attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
-                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled'
-            ],
+            attributes: previewAttributes,
             include: [userModel]
                 //raw: true,
         })
@@ -168,9 +175,7 @@ const getFullRecipe = async function(filter) {
             limitClause,
             offsetClause,
             nest: true,
-            attributes: ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
-                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId'
-            ],
+            attributes: allAttributes,
         })
         .then((result) => {
             let tempRes = result[0];
@@ -221,9 +226,7 @@ const getMyRecipes = async function(userUuId) {
         .findAll({
             where: whereclause,
             raw: true,
-            attributes: ['userUuId', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
-                'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled'
-            ],
+            attributes: previewAttributes,
         })
         .catch((error) => {
             console.log(error);

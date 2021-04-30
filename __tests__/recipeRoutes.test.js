@@ -82,11 +82,57 @@ describe("Auth Routes Test", function() {
                 }
             ]
         };
+
+        const chickenSalad = {
+            recipeName: "Chicken Salad",
+            servingCount: 6,
+            minuteTotalTime: 15,
+            instructions: "1. Combine all ingredients in a small bowl and mix well./n2. Season with salt and pepper to taste./n3.Serve as a sandwich or over salad.",
+            toolsNeeded: "Spoon, knife, bowl",
+            userUuId: u1.userUuId,
+            ingredients: [{
+                    quantity: 2,
+                    measurement: "cup",
+                    label: "chicken",
+                    prepInstructions: "chopped"
+                },
+                {
+                    quantity: 0.5,
+                    measurement: "cup",
+                    label: "mayonnaise"
+                },
+                {
+                    quantity: 1,
+                    measurement: "cup",
+                    label: "celery stalk",
+                    prepInstructions: "chopped"
+                },
+                {
+                    quantity: 1,
+                    measurement: "whole",
+                    label: "green onion",
+                    prepInstructions: "diced"
+                },
+                {
+                    quantity: 1,
+                    measurement: "teaspoon",
+                    label: "seasoned salt"
+                },
+                {
+                    quantity: 0,
+                    measurement: "pinch",
+                    label: "pepper",
+                    prepInstructions: "to taste"
+                }
+            ]
+        };
         let r1 = Recipe.createRecipe(newRecipe);
         let r2 = Recipe.createRecipe(secondRecipe);
-        [r1, r2] = await Promise.all([r1, r2]);
+        let r3 = Recipe.createRecipe(chickenSalad);
+        [r1, r2, r3] = await Promise.all([r1, r2, r3]);
         sampleRecipeUuid1 = r1.recipeUuid;
         sampleRecipeUuid2 = r2.recipeUuid;
+        chickenSaladUuid = r3.recipeUuid;
         let response = await request(app)
             .post("/auth/token")
             .send({ userName: "Test2", password: "test" });
@@ -107,7 +153,7 @@ describe("Auth Routes Test", function() {
                 .get('/recipes')
                 .set('Authorization', `Bearer ${token2}`);
             let count = response.body.recipes ? response.body.recipes.count : 0;
-            expect(count).toEqual(2);
+            expect(count).toEqual(3);
         });
         test("cannot get a list of recipes if not logged in", async function() {
             let response = await request(app)
@@ -152,6 +198,20 @@ describe("Auth Routes Test", function() {
     })
 
     /**
+     * GET /recipes/recipeUuid]
+     * returns a recipe with updated API data
+     */
+    describe("GET /recipes/research/:recipeUuid", function() {
+        // test("can get a recipe data from an external api", async function() {
+        //     let response = await request(app)
+        //         .get(`/recipes/research/${chickenSaladUuid}`)
+        //         .set(`Authorization`, `Bearer ${token1}`);
+        //     expect(response.statusCode).toBe(200);
+        //     expect(response.body.edamamETag).toBeTruthy();
+        // });
+    })
+
+    /**
      * POST /recipes
      * post a new recipe
      */
@@ -187,7 +247,7 @@ describe("Auth Routes Test", function() {
             response = await request(app)
                 .get('/recipes')
                 .set('Authorization', `Bearer ${token1}`);
-            expect(response.body.recipes.count).toEqual(3);
+            expect(response.body.recipes.count).toEqual(4);
         });
     });
 
