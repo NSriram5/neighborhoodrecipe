@@ -10,6 +10,10 @@ const User = require("../controllers/user");
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");
+const axios = require("axios");
+const edamamId = require("../config/config").EDAMAM_ID;
+const edamamKey = require("../config/config").EDAMAM_KEY;
+const edamamUrl = require("../config/config").EDAMAM_URL;
 const { createToken } = require("../helpers/tokens");
 const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 const { BadRequestError, ForbiddenError, ExpressError } = require("../expressError");
@@ -58,6 +62,51 @@ router.get("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
         return next(err);
     }
 })
+
+/**
+ * GET /research/[uuid] => retrieves a recipe's nutrition details from an online api
+ * 
+ * Returns a json of the recipe with updated recipe details
+ * 
+ * Authorization required: login
+ */
+router.get("/research/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
+    try {
+        const recipe = await Recipe.getFullRecipe({ recipeUuid: req.params.recipeUuid });
+        if (!recipe.kCals || !recipe.edamamETag) {
+            let title = recipe.recipeName;
+            let ingredients = recipe.Ingredients.map((item) => {
+                return `${item.quantity ? item.quantity : ''} ${item.measurement ? item.measurement : ''} ${item.label ? item.label:''}, ${item.prepInstructions ? item.prepInstructions : ''}`.trim();
+            });
+            let apiUrl = `${edamamUrl}?app_id=${edamamId}&app_key=${edamamKey}`;
+            let response = await axios.post(apiUrl, {
+                app_id: edamamId,
+                app_key: edamamKey,
+                title: title,
+                ingr: ingredients
+            });
+            let data = response.data;
+            recipe.kCals = data.calories;
+            recipe.edamamETag = data.uri;
+            recipe.dietLabels = data.dietLabels;
+            recipe.healthLabels = data.healthLabels;
+            recipe.fat = data.totalNutrients["FAT"]["quantity"];
+            recipe.fatsat = data.totalNutrients["FASAT"]["quantity"];
+            recipe.fattrans = data.totalNutrients["FATRN"]["quantity"];
+            recipe.carbs = data.totalNutrients["CHOCDF"]["quantity"];
+            recipe.fiber = data.totalNutrients["FIBTG"]["quantity"];
+            recipe.sugar = data.totalNutrients["SUGAR"]["quantity"];
+            recipe.protein = data.totalNutrients["PROCNT"]["quantity"];
+            recipe.cholesterol = data.totalNutrients["CHOLE"]["quantity"];
+            recipe.sodium = data.totalNutrients["NA"]["quantity"];
+            let updated = await Recipe.updateRecipe(recipe);
+            return res.json(updated[1][0]);
+        }
+        return res.json({ message: "No updated needed" });
+    } catch (err) {
+        return next(err);
+    }
+});
 
 /**
  * POST / => post a new recipe
@@ -132,5 +181,7 @@ router.delete("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
         return next(err);
     }
 });
+
+
 
 module.exports = router;
