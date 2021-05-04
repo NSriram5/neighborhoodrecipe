@@ -25,16 +25,12 @@ app.use(morgan("tiny"));
 app.use(express.static(path.resolve(__dirname + "/../static")));
 app.use(session({ secret: SESSION_SECRET }))
 app.use(authenticateJWT);
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/auth", authRoutes);
-<<<<<<< HEAD
-app.use("/users", usersRoutes);
-app.use("/recipes", recipesRoutes);
-=======
 app.use("/recipes", recipesRoutes);
 app.use("/users", usersRoutes);
->>>>>>> 926922b27f482adef2dd234f33b0736396c7f9c4
 //app.use("/ingredients", ingredientsRoutes);
 
 /** Handle 404 errors -- this matches everything */
