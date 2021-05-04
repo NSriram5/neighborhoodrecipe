@@ -4,8 +4,7 @@
 
 const jsonschema = require("jsonschema");
 
-//const User = require("../models/user");
-const User = require("../controllers/user")
+const User = require("../controllers/user");
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");
@@ -38,7 +37,7 @@ router.post("/token", async function(req, res, next) {
         req.session.token = token;
         return res.status(201).json({ token });
     } catch (err) {
-        console.log(err);
+        //console.log(err);
         return next(err);
     }
 });

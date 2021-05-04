@@ -12,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         mealCategory: {
-            type: DataTypes.ENUM(['dinner', 'lunch', 'breakfast', 'snack', 'desert']),
+            type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         },
         dietCategory: {
-            type: DataTypes.ENUM(['vegetarian', 'vegan', 'glutenfree', 'kosher']),
+            type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         },
         servingCount: {
@@ -53,9 +53,79 @@ module.exports = (sequelize, DataTypes) => {
         },
         disabled: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-            default: false
-        }
+            defaultValue: false,
+            allowNull: false
+        },
+        photoUrl: {
+            type: DataTypes.TEXT,
+            defaultValue: "",
+            allowNull: true
+        },
+        edamamETag: {
+            type: DataTypes.STRING,
+            defaultValue: "",
+            allowNull: true
+        },
+        dietLabels: {
+            type: DataTypes.ARRAY(DataTypes.TEXT),
+            defaultValue: [],
+            allowNull: true
+        },
+        healthLabels: {
+            type: DataTypes.ARRAY(DataTypes.TEXT),
+            defaultValue: [],
+            allowNull: true
+        },
+        kCals: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        fat: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        fatsat: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        fattrans: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        carbs: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        fiber: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        sugar: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        protein: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        cholesterol: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
+        sodium: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+            allowNull: true
+        },
     });
     Recipe.associate = (models) => {
         Recipe.belongsTo(models.User, {

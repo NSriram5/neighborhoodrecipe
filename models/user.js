@@ -30,14 +30,30 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true
+        },
+        wantsNutritionData: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+            allowNull: true
         }
     });
     User.associate = (models) => {
-        User.hasMany(models.User, {
-            foreignKey: "userUuId",
+        User.belongsToMany(models.User, {
+            through: 'userUserJoins',
+            as: 'friends',
+            foreignKey: 'requestorUuId',
             onDelete: 'CASCADE'
         });
-
+        User.belongsToMany(models.User, {
+            through: 'userUserJoins',
+            as: 'friendsMe',
+            foreignKey: 'targetUuId',
+            onDelete: 'CASCADE'
+        });
+        User.hasMany(models.Recipe, {
+            foreignKey: 'userUuId',
+            allowNull: true
+        });
     };
 
     return User;
