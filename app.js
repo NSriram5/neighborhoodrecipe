@@ -27,8 +27,8 @@ app.use(authenticateJWT);
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/auth", authRoutes);
-//app.use("/users", usersRoutes);
-//app.use("/recipes", recipesRoutes);
+app.use("/users", usersRoutes);
+app.use("/recipes", recipesRoutes);
 //app.use("/ingredients", ingredientsRoutes);
 
 /** Handle 404 errors -- this matches everything */
