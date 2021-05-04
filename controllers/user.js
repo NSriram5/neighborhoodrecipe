@@ -96,13 +96,13 @@ const updateUser = async function(user) {
         .update(
             user, {
                 returning: allAttributes,
-                //raw: true,
+                raw: true,
                 where: whereclause
             }
         )
         .then((result) => {
             console.log('User updated');
-            return result;
+            return result[1][0];
         })
         .catch(error => {
             throw new ExpressError(error, 400);

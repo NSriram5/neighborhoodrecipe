@@ -24,7 +24,8 @@ describe("Test all user routes", function() {
         u1 = User.createUser({
             email: "asdf@asdf.com",
             password: "password",
-            userName: "Test1"
+            userName: "Test1",
+            wantsNutritionData: true
         });
         u2 = User.createUser({
             email: "jklfuntimes@jklfuntimes.com",
@@ -72,6 +73,21 @@ describe("Test all user routes", function() {
             expect(response.status).toEqual(403);
         });
     });
+
+    describe("Update a user's info with new information", function() {
+        test("u1 changes password, username, and indicates they don't want nutrition data", async function() {
+            let { updatedAt, createdAt, ...useritems } = u1;
+            useritems.wantsNutritionData = false;
+            useritems.password = "treeforest";
+            useritems.userName = "treebeard";
+            let response = await request(app)
+                .post(`/users/${u1.userUuId}`)
+                .send(useritems)
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.status).toEqual(200);
+            expect(response.body).toEqual(expect.objectContaining({ userName: "treebeard", wantsNutritionData: false }));
+        })
+    })
 
     describe("Initiate a connection with a user", function() {
         test("u1 sends a connection request to u2", async function() {
