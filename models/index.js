@@ -23,7 +23,6 @@ if (config.configuration.environmentOptions.environment == "AWS") {
     );
 }
 
-
 fs
     .readdirSync(__dirname)
     .filter(file => {
