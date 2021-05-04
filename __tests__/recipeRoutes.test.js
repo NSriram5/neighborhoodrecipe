@@ -15,7 +15,7 @@ describe("Recipe routes test", function() {
     let u1, u2
 
     beforeAll(async function() {
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {

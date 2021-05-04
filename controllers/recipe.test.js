@@ -9,7 +9,7 @@ describe("Test recipe controller functions", function() {
     let uuId1, uuId2, uuId3;
 
     beforeAll(async function() {
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {

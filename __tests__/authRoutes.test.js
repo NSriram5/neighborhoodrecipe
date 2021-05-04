@@ -7,7 +7,7 @@ const User = require('../controllers/user');
 
 describe("Auth Routes Test", function() {
     beforeAll(async function() {
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {

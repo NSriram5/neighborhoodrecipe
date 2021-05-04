@@ -12,7 +12,7 @@ describe("Test all user controller functions", function() {
 
     beforeAll(async function() {
         passwordHash = await bcrypt.hash("test", BCRYPT_WORK_FACTOR);
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {
@@ -132,5 +132,7 @@ describe("Test all user controller functions", function() {
             expect(found1.length).toEqual(0);
         });
     });
-
+    afterAll(async function() {
+        await db.sequelize.close();
+    });
 });
