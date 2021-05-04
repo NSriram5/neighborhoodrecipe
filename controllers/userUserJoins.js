@@ -54,26 +54,36 @@ const getUserUserConnections = async function(filter) {
 
 const checkIfConnected = async function(selfUuId, targetUuId) {
     checkInputSelfTarget(selfUuId, targetUuId);
-    whereclause = {
+    let whereclause = {
         [Op.or]: [{
-                requestorUuId: {
-                    [Op.eq]: selfUuId
-                },
-                targetUuId: {
-                    [Op.eq]: targetUuId
-                }
+                [Op.and]: [{
+                        requestorUuId: {
+                            [Op.eq]: selfUuId
+                        }
+                    },
+                    {
+                        targetUuId: {
+                            [Op.eq]: targetUuId
+                        }
+                    }
+                ]
             },
             {
-                targetUuId: {
-                    [Op.eq]: selfUuId
-                },
-                requestorUuId: {
-                    [Op.eq]: targetUuId
-                }
+                [Op.and]: [{
+                        targetUuId: {
+                            [Op.eq]: selfUuId
+                        }
+                    },
+                    {
+                        requestorUuId: {
+                            [Op.eq]: targetUuId
+                        }
+                    }
+                ]
             }
         ]
     };
-    return userUserJoins.findOne({ whereclause })
+    return userUserJoins.findOne({ where: whereclause })
         .then((result) => {
             if (!result) return false;
             return result;

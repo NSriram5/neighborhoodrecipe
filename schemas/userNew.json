@@ -21,6 +21,9 @@
         },
         "isAdmin": {
             "type": "boolean"
+        },
+        "wantsNutritionData": {
+            "type": "boolean"
         }
     },
     "additionalProperties": false,

@@ -6,6 +6,10 @@ const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config/config.js");
 const { BadRequestError, ExpressError } = require("../expressError");
 
+const allAttributes = ['email', 'userName', 'isAdmin',
+    'disabled', 'userUuId', 'wantsNutritionData'
+]
+
 /**
  * Creates a user 
  * @param {Object} user an object representing the user to be stored in database
@@ -60,9 +64,7 @@ const getUsers = async function(filter, authenticate = false) {
             [Op.eq]: filter.userUuId
         };
     }
-    const attributesclause = ['email', 'userName', 'isAdmin',
-        'disabled', 'userUuId'
-    ]
+    const attributesclause = allAttributes
     if (authenticate) { attributesclause.push('passwordHash'); }
     return User
         .findAll({
@@ -93,16 +95,14 @@ const updateUser = async function(user) {
     return User
         .update(
             user, {
-                returning: ['email', 'userName', 'isAdmin',
-                    'disabled', 'userUuId'
-                ],
-                //raw: true,
+                returning: allAttributes,
+                raw: true,
                 where: whereclause
             }
         )
         .then((result) => {
             console.log('User updated');
-            return result;
+            return result[1][0];
         })
         .catch(error => {
             throw new ExpressError(error, 400);

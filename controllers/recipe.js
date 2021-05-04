@@ -3,9 +3,12 @@ const Recipe = require('../models').Recipe;
 const Ingredient = require('./ingredients');
 const Op = require('../models/').Sequelize.Op;
 const RecipeIngredientJoin = require('./recipeIngredientJoin');
-const recipeIngredientModel = require('../models').RecipeIngredientJoin;
-const ingredientmodel = require('../models').Ingredient;
+const userUserJoins = require('./userUserJoins');
+const recipeIngredientModel = require('../models').recipeIngredientJoin;
+const ingredientModel = require('../models').Ingredient;
+const db = require('../models');
 const userModel = require('../models').User;
+const userUserJoinModel = require('../models').userUserJoins;
 
 const allAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
     'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
@@ -113,6 +116,17 @@ const getRecipe = async function(filter) {
             [Op.eq]: filter.disabled
         };
     }
+    if (filter.users) {
+        whereclause.user = {
+            [Op.or]: filter.user.map((user) => {
+                return {
+                    userUuId: {
+                        [Op.eq]: filter.userUuId
+                    }
+                };
+            })
+        }
+    }
     if (filter.offset) {
         offsetClause.offset = filter.offset;
     } else { offsetClause.offset = 0; }
@@ -169,7 +183,7 @@ const getFullRecipe = async function(filter) {
             raw: true,
             include: [
                 userModel,
-                ingredientmodel
+                ingredientModel
             ],
             where: whereclause,
             limitClause,
@@ -217,11 +231,31 @@ const deleteRecipe = async function(recipeUuid) {
     return { message: "delete successful" };
 }
 
-const getMyRecipes = async function(userUuId) {
+const getMyRecipes = async function(userUuId, connected = false) {
     let whereclause = {};
-    whereclause.userUuId = {
-        [Op.eq]: userUuId
-    };
+    let me = db;
+    if (connected) {
+        let frienduuids1 = userUserJoinModel.findAll({
+            where: { requestorUuId: userUuId },
+            attributes: ['targetUuId'],
+            raw: true
+        })
+        let frienduuids2 = userUserJoinModel.findAll({
+            where: { targetUuId: userUuId },
+            attributes: ['requestorUuId'],
+            raw: true
+        });
+        [frienduuids1, frienduuids2] = await Promise.all([frienduuids1, frienduuids2]);
+        let superfriends = [userUuId, ...frienduuids1.map((item) => item['targetUuId']), ...frienduuids2.map((item) => item['requestorUuId'])];
+
+        whereclause.userUuId = {
+            [Op.or]: superfriends
+        };
+    } else {
+        whereclause.userUuId = {
+            [Op.eq]: userUuId
+        };
+    }
     return Recipe
         .findAll({
             where: whereclause,
