@@ -13,12 +13,14 @@ const authRoutes = require("./routes/auth");
 const user = require("./controllers/user");
 const path = require("path");
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 const { SESSION_SECRET } = require("./config/config");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan("tiny"));
 app.use(express.static(path.resolve(__dirname + "/../static")));
 app.use(session({ secret: SESSION_SECRET }))
 app.use(authenticateJWT);
