@@ -11,7 +11,9 @@ const { patch } = require("../app");
 let token, token2;
 let sampleRecipeUuid, sampleRecipeUuid2;
 
-describe("Auth Routes Test", function() {
+describe("Recipe routes test", function() {
+    let u1, u2
+
     beforeAll(async function() {
         await db.sequelize.sync(true).then(() => {
                 console.log('Database connection has been established.');
@@ -25,12 +27,12 @@ describe("Auth Routes Test", function() {
         await db.sequelize.query('DELETE FROM "Recipes"');
         await db.sequelize.query('DELETE FROM "Ingredients"');
         await db.sequelize.query('DELETE FROM "recipeIngredientJoins"');
-        let u1 = await User.createUser({
+        u1 = await User.createUser({
             email: "asdf@asdf.com",
             password: "password",
             userName: "Test1"
         });
-        let u2 = await User.createUser({
+        u2 = await User.createUser({
             email: "jklfuntimes@jklfuntimes.com",
             password: "test",
             userName: "Test2",
@@ -147,18 +149,45 @@ describe("Auth Routes Test", function() {
      * GET /recipes
      * return list of recipes
      */
-    describe("GET /recipes", function() {
+    describe("GET /recipes/adminall", function() {
         test("can get a list of recipes", async function() {
             let response = await request(app)
-                .get('/recipes')
+                .get('/recipes/adminall')
                 .set('Authorization', `Bearer ${token2}`);
             let count = response.body.recipes ? response.body.recipes.count : 0;
             expect(count).toEqual(3);
         });
         test("cannot get a list of recipes if not logged in", async function() {
             let response = await request(app)
-                .get("/recipes");
+                .get("/recipes/adminall");
             expect(response.statusCode).toBe(401);
+        });
+    });
+
+
+    describe("GET /recipes/view", function() {
+        test("can get list of recipes associated with a user and their friends", async function() {
+            await User.inviteUser(u1.userUuId, u2.userUuId);
+            await User.acceptUser(u2.userUuId, u1.userUuId);
+            let response = await request(app)
+                .get('/recipes/view')
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.body.recipes).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: "test2" })]));
+        });
+        test("can get a list of recipes associated with a user if the friendship exchange is reversed",
+            async function() {
+                await User.inviteUser(u2.userUuId, u1.userUuId);
+                await User.acceptUser(u1.userUuId, u2.userUuId);
+                let response = await request(app)
+                    .get('/recipes/view')
+                    .set('Authorization', `Bearer ${token1}`);
+                expect(response.body.recipes).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: "test2" })]));
+            });
+        test("if friendship isn't established then we can't see the other user's recipe", async function() {
+            let response = await request(app)
+                .get('/recipes/view')
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.body.recipes).toEqual(expect.not.arrayContaining([expect.objectContaining({ recipeName: "test2" })]));
         });
     });
 
@@ -209,7 +238,7 @@ describe("Auth Routes Test", function() {
         //     expect(response.statusCode).toBe(200);
         //     expect(response.body.edamamETag).toBeTruthy();
         // });
-    })
+    });
 
     /**
      * POST /recipes
@@ -245,7 +274,7 @@ describe("Auth Routes Test", function() {
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.body.validMessage).toEqual("Recipe has been created");
             response = await request(app)
-                .get('/recipes')
+                .get('/recipes/adminall')
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.body.recipes.count).toEqual(4);
         });
