@@ -50,6 +50,28 @@ router.get("/:userUuId", ensureLoggedIn, async function(req, res, next) {
 });
 
 /**
+ * POST /:userUuId => updates a user's information
+ * 
+ * Returns the updated user info
+ * 
+ * Authorization required: login of user OR admin
+ */
+router.post("/:userUuId", ensureLoggedIn, async function(req, res, next) {
+    try {
+        const validator = jsonschema.validate(req.body, userUpdateSchema);
+        if (!validator.valid) {
+            const errs = validator.errors.map(e => e.stack);
+            throw new BadRequestError(errs);
+        }
+        const user = await User.updateUser(req.body);
+        return res.json(user);
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+});
+
+/**
  * POST /connect/:userUuId => sends a connection request to another user
  * 
  * Returns a success message

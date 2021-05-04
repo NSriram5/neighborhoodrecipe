@@ -25,7 +25,7 @@ const { BadRequestError, ForbiddenError, ExpressError } = require("../expressErr
  * 
  * Authorization required: login and admin
  */
-router.get("/", ensureLoggedIn, ensureAdmin, async function(req, res, next) {
+router.get("/adminall", ensureLoggedIn, ensureAdmin, async function(req, res, next) {
     try {
         const recipes = await Recipe.getRecipe();
         return res.json({ recipes: recipes });
@@ -34,6 +34,16 @@ router.get("/", ensureLoggedIn, ensureAdmin, async function(req, res, next) {
         return next(err);
     }
 });
+
+router.get("/view", ensureLoggedIn, async function(req, res, next) {
+    try {
+        let listedrecipes = await Recipe.getMyRecipes(res.locals.user.userUuId, true);
+        return res.json({ recipes: listedrecipes });
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+})
 
 /**
  * GET /[uuid] => retrieve recipe details from the backend

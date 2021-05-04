@@ -36,7 +36,6 @@ describe("Test all user controller functions", function() {
             });
             uuId1 = u1.userUuId;
             uuId2 = u2.userUuId;
-            userUuId = u1.userUuId;
             //console.log(u1);
         } catch (err) {
             //console.log(err);
@@ -48,7 +47,7 @@ describe("Test all user controller functions", function() {
      */
     describe("Get user", function() {
         test("Can get a user that exists", async function() {
-            const found = await User.getUsers({ userUuId });
+            const found = await User.getUsers({ uuId1 });
             expect(found[0]).toEqual(expect.objectContaining({ userName: "Test1", email: "asdf@asdf.com" }));
         });
     });
@@ -57,7 +56,7 @@ describe("Test all user controller functions", function() {
      * Use the controller to create a new user
      */
     describe("Make user", function() {
-        test("Can make a user then get that user", async function() {
+        test("Can make a user, then get that user", async function() {
             const u3 = await User.createUser({
                 email: "createdUserforTest@gmail.com",
                 password: "ThisIsAPassword!3",

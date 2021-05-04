@@ -2,9 +2,12 @@ const app = require("../app");
 const db = require('../models/index');
 const Recipe = require('../controllers/recipe');
 const User = require('../controllers/user');
+const UserUserJoins = require('../controllers/userUserJoins');
 const RecipeIngredientJoin = require('../controllers/recipeIngredientJoin');
 
 describe("Test recipe controller functions", function() {
+    let uuId1, uuId2, uuId3;
+
     beforeAll(async function() {
         await db.sequelize.sync(true).then(() => {
                 console.log('Database connection has been established.');
@@ -17,7 +20,35 @@ describe("Test recipe controller functions", function() {
         await db.sequelize.query('DELETE FROM "Recipes"');
         await db.sequelize.query('DELETE FROM "Ingredients"');
         await db.sequelize.query('DELETE FROM "recipeIngredientJoins"');
-        let recipe1 = await db.sequelize.query(`INSERT INTO "Recipes" ("recipeUuid","recipeName","disabled","createdAt","updatedAt") VALUES ('40e6215d-b5c6-4896-987c-f30f3678f607','soup for my family','true','2004-10-19 10:23:54+02','2004-10-19 10:23:54+02')`);
+        await db.sequelize.query('DELETE FROM "Users"');
+        await db.sequelize.query('DELETE FROM "userUserJoins"');
+        let u1 = await User.createUser({
+            email: "asdf@asdf.com",
+            password: "password",
+            userName: "Test1"
+        });
+        let u2 = await User.createUser({
+            email: "jklfuntimes@jklfuntimes.com",
+            password: "badpassword",
+            userName: "Test2",
+            isAdmin: true
+        });
+        let u3 = await User.createUser({
+            email: "princesandbag@gmail.com",
+            password: "badpassword",
+            userName: "Test3"
+        });
+        uuId1 = u1.userUuId;
+        uuId2 = u2.userUuId;
+        uuId3 = u3.userUuId;
+        let recipe1 = await db.sequelize.query(`INSERT INTO "Recipes" ("recipeUuid","recipeName","disabled","createdAt","updatedAt","userUuId") VALUES ('40e6215d-b5c6-4896-987c-f30f3678f607','soup for my family','true','2004-10-19 10:23:54+02','2004-10-19 10:23:54+02','${uuId1}')`);
+        let recipe2 = await db.sequelize.query(`INSERT INTO "Recipes" ("recipeUuid","recipeName","disabled","createdAt","updatedAt","userUuId") VALUES ('40e6215d-b5c6-4896-987c-f30f3678f608','untitled1','true','2004-10-19 10:23:54+02','2004-10-19 10:23:54+02','${uuId3}')`);
+        let recipe3 = await db.sequelize.query(`INSERT INTO "Recipes" ("recipeUuid","recipeName","disabled","createdAt","updatedAt","userUuId") VALUES ('40e6215d-b5c6-4896-987c-f30f3678f609','untitled2','true','2004-10-19 10:23:54+02','2004-10-19 10:23:54+02','${uuId1}')`);
+        await User.inviteUser(uuId1, uuId2);
+        await User.acceptUser(uuId2, uuId1);
+        await User.inviteUser(uuId3, uuId2);
+        await User.acceptUser(uuId2, uuId3);
+        let a = "cat";
     });
 
     /**
@@ -28,7 +59,7 @@ describe("Test recipe controller functions", function() {
             const found = await Recipe.getRecipe({ recipeName: 'soup for my family' });
             expect(found.rows[0]).toEqual(expect.objectContaining({ recipeName: "soup for my family", recipeUuid: "40e6215d-b5c6-4896-987c-f30f3678f607", disabled: true, dietCategory: null, farenheitTemp: null, instructions: null, mealCategory: null, minutePrepTime: null, minuteTimeBake: null, minuteTotalTime: null, servingCount: null, toolsNeeded: null, websiteReference: null }));
         });
-        test("doesn't get a recipe if the filter is looks for the wrong thing", async function() {
+        test("doesn't get a recipe if the filter is looking for the wrong thing", async function() {
             const found = await Recipe.getRecipe({ recipeName: 'shamsham shamina' });
             expect(found.count).toEqual(0);
             expect(found.rows.length).toEqual(0);
@@ -183,7 +214,13 @@ describe("Test recipe controller functions", function() {
             const create = await Recipe.createRecipe(newRecipe);
             const retrieve = await Recipe.getMyRecipes(userUuId);
             //console.log(retrieve);
-        })
+        });
+        test("retrieve connected recipes", async function() {
+            const retrieve = await Recipe.getMyRecipes(uuId2, connected = true);
+            let cat = 12;
+            expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled1' })]));
+            expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled2' })]));
+        });
     })
 
     afterAll(async function() {
