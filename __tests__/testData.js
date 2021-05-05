@@ -1,3 +1,67 @@
+const testUser1 = {
+    userName: "Test1",
+    password: "password",
+    email: "asdf@asdf.com",
+    wantsNutritionData: true
+}
+
+const testUser2 = {
+    userName: "Test2",
+    password: "password",
+    email: "asdf2@asdf.com",
+    wantsNutritionData: false
+}
+
+const humus = {
+    recipeName: "Hummus",
+    mealCategory: [],
+    dietCategory: [],
+    instructions: ["1. In a food processor, puree the chickpeas and garlic with the olive oil, lemon juice, tahini (if using), cumin, and ¾ teaspoon salt until smooth and creamy. Add 1 to 2 tablespoons water as necessary to achieve the desired consistency.", "2. Transfer to a bowl. Drizzle with olive oil and sprinkle with the paprika before serving."],
+    servingCount: 4,
+    toolsNeeded: "Instapot, immersion blender",
+    ingredients: [{
+        label: "Smoked Paprika",
+        measurement: "teaspoon",
+        quantity: "0.25"
+    }, {
+        label: "Salt",
+        measurement: "teaspoon",
+        quantity: 1.0
+    }, {
+        label: "Tahini",
+        measurement: "tablespoon",
+        quantity: 2.0
+
+    }, {
+        label: "Ground Cumin",
+        measurement: "teaspoon",
+        quantity: 1.0
+    }, {
+        label: "Lemon Juice",
+        measurement: "tablespoon",
+        quantity: 2.0
+    }, {
+        label: "Olive Oil",
+        measurement: "cup",
+        quantity: 0.25
+    }, {
+        label: "Garlic",
+        measurement: "whole",
+        quantity: 1.0,
+        prepInstructions: "Clove"
+    }, {
+        label: "Chickpeas",
+        measurement: "Can",
+        quantity: 1.0,
+        prepInstructions: "15 ounce can",
+    }, {
+        label: "Pepper",
+        measurement: "Teaspoon",
+        quantity: 0.25,
+        prepInstructions: "ground"
+    }]
+}
+
 const rasam = {
     recipeName: "Rasam",
     mealCategory: [
@@ -144,5 +208,8 @@ const chickenSalad = {
 module.exports = {
     bethsSoupBroth,
     chickenSalad,
-    rasam
+    rasam,
+    humus,
+    testUser1,
+    testUser2,
 }
