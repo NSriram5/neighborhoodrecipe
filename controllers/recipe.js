@@ -10,12 +10,12 @@ const db = require('../models');
 const userModel = require('../models').User;
 const userUserJoinModel = require('../models').userUserJoins;
 
-const allAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
-    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
+const allAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'flatCategories', 'servingCount', 'websiteReference', 'farenheitTemp',
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'flatInstructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
 ];
 
-const previewAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'servingCount', 'websiteReference', 'farenheitTemp',
-    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'toolsNeeded', 'disabled', 'photoUrl'
+const previewAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'flatCategories', 'servingCount', 'websiteReference', 'farenheitTemp',
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'flatInstructions', 'toolsNeeded', 'disabled', 'photoUrl'
 ];
 
 
@@ -49,6 +49,8 @@ const createRecipe = async function(recipe) {
             })
     };
     //all ingredients have been created... Create the recipe now
+    recipe.flatInstructions = JSON.stringify(recipe.instructions);
+    recipe.flatCategories = `${JSON.stringify(recipe.mealCategory)}${JSON.stringify(recipe.dietCategory)}`;
     let { ingredients, ...newRecipe } = recipe;
     return await Recipe
         .create(
@@ -91,18 +93,13 @@ const getRecipe = async function(filter) {
             [Op.iLike]: '%' + filter.recipeName + '%'
         };
     }
-    if (filter.mealCategory) {
-        whereclause.mealCategory = {
-            [Op.iLike]: filter.mealCategory
-        };
-    }
-    if (filter.dietCategory) {
-        whereclause.dietCategory = {
-            [Op.iLike]: filter.dietCategory
+    if (filter.category) {
+        whereclause.flatCategories = {
+            [Op.iLike]: '%' + filter.category + '%'
         };
     }
     if (filter.instructions) {
-        whereclause.instructions = {
+        whereclause.flatInstructions = {
             [Op.iLike]: '%' + filter.instructions + '%'
         };
     }
@@ -305,6 +302,8 @@ const updateRecipe = async function(recipe) {
                 console.log('Error creating Ingredient');
             })
     };
+    recipe.flatInstructions = recipe.instructions ? JSON.stringify(recipe.instructions) : "";
+    recipe.flatCategories = (recipe.mealCategory || recipe.dietCategory) ? `${JSON.stringify(recipe.mealCategory)}${JSON.stringify(recipe.dietCategory)}` : "";
     let newRecipe = {...recipe }
     let returnedRecipeIngredients = await returnRecipeIngredients;
     for (temp in recipeIngredientList) {

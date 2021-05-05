@@ -12,6 +12,13 @@ function createToken(user) {
         userUuId: user.userUuId,
         isAdmin: user.isAdmin || false,
     };
+    let token = jwt.sign(payload, SECRET_KEY);
+    let check
+    try {
+        check = jwt.verify(token, SECRET_KEY);
+    } catch (err) {
+        console.log(`An error has occured during signing ${err}`)
+    }
     return jwt.sign(payload, SECRET_KEY);
 }
 

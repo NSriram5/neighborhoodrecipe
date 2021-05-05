@@ -33,9 +33,9 @@ router.post("/token", async function(req, res, next) {
         if (!valid) {
             throw new ExpressError("Invalid userName or password", 400);
         }
+        delete valid.passwordHash;
         const token = createToken(valid);
-        req.session.token = token;
-        return res.status(201).json({ token });
+        return res.status(201).json({ token, user: valid });
     } catch (err) {
         //console.log(err);
         return next(err);
@@ -75,6 +75,7 @@ router.post("/token", async function(req, res, next) {
 
 router.post("/register", async function(req, res, next) {
     try {
+        console.log("Entering registration process");
         const validator = jsonschema.validate(req.body, userRegisterSchema);
         if (!validator.valid) {
             const errs = validator.errors.map(e => e.stack);
@@ -82,17 +83,16 @@ router.post("/register", async function(req, res, next) {
         }
         const userName = req.body.userName;
         const userPassword = req.body.password;
-        await User.createUser(req.body);
-
+        const newUser = await User.createUser(req.body);
         const valid = await User.authenticateUser(userName, userPassword);
-        if (!valid) {
-            return res.json({ invalidMessage: "User email or password is incorrect" })
-        }
+        delete valid.passwordHash;
         const token = createToken(valid);
-        req.session.token = token;
-        return res.status(201).json({ token });
+        console.log(`New token created and it's ${token}`);
+
+        return res.status(201).json({ token, user: valid });
     } catch (err) {
-        return next(err);
+        console.log(`The process has thrown an error: ${err}`);
+        return next();
     }
 });
 

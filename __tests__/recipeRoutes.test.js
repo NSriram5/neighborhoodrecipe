@@ -7,12 +7,13 @@ const User = require('../controllers/user');
 const Recipe = require('../controllers/recipe');
 const recipe = require("../models/recipe");
 const { patch } = require("../app");
+const { chickenSalad } = require("./testData");
 
-let token, token2;
-let sampleRecipeUuid, sampleRecipeUuid2;
 
 describe("Recipe routes test", function() {
     let u1, u2
+    let sampleRecipeUuid, sampleRecipeUuid2;
+    let token1, token2;
 
     beforeAll(async function() {
         await db.sequelize.sync({ force: true }).then(() => {
@@ -43,7 +44,7 @@ describe("Recipe routes test", function() {
             servingCount: 5,
             farenheitTemp: 250,
             minuteTotalTime: 45,
-            instructions: "Hello there",
+            instructions: ["Hello there"],
             toolsNeeded: "My old friend",
             userUuId: u1.userUuId,
             ingredients: [{
@@ -66,7 +67,7 @@ describe("Recipe routes test", function() {
             servingCount: 10,
             farenheitTemp: 500,
             minuteTotalTime: 90,
-            instructions: "Hello there",
+            instructions: ["Hello there"],
             toolsNeeded: "My old friend",
             userUuId: u2.userUuId,
             ingredients: [{
@@ -85,49 +86,8 @@ describe("Recipe routes test", function() {
             ]
         };
 
-        const chickenSalad = {
-            recipeName: "Chicken Salad",
-            servingCount: 6,
-            minuteTotalTime: 15,
-            instructions: "1. Combine all ingredients in a small bowl and mix well./n2. Season with salt and pepper to taste./n3.Serve as a sandwich or over salad.",
-            toolsNeeded: "Spoon, knife, bowl",
-            userUuId: u1.userUuId,
-            ingredients: [{
-                    quantity: 2,
-                    measurement: "cup",
-                    label: "chicken",
-                    prepInstructions: "chopped"
-                },
-                {
-                    quantity: 0.5,
-                    measurement: "cup",
-                    label: "mayonnaise"
-                },
-                {
-                    quantity: 1,
-                    measurement: "cup",
-                    label: "celery stalk",
-                    prepInstructions: "chopped"
-                },
-                {
-                    quantity: 1,
-                    measurement: "whole",
-                    label: "green onion",
-                    prepInstructions: "diced"
-                },
-                {
-                    quantity: 1,
-                    measurement: "teaspoon",
-                    label: "seasoned salt"
-                },
-                {
-                    quantity: 0,
-                    measurement: "pinch",
-                    label: "pepper",
-                    prepInstructions: "to taste"
-                }
-            ]
-        };
+        chickenSalad.userUuId = u1.userUuId;
+
         let r1 = Recipe.createRecipe(newRecipe);
         let r2 = Recipe.createRecipe(secondRecipe);
         let r3 = Recipe.createRecipe(chickenSalad);
@@ -202,7 +162,7 @@ describe("Recipe routes test", function() {
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.statusCode).toBe(200);
             expect(response.body.rows).toContainEqual(expect.objectContaining({
-                instructions: 'Hello there',
+                flatInstructions: "[\"Hello there\"]",
                 recipeName: 'test1'
             }));
         });
@@ -212,7 +172,7 @@ describe("Recipe routes test", function() {
                 .set('Authorization', `Bearer ${token2}`);
             expect(response.statusCode).toBe(200);
             expect(response.body.rows).toContainEqual(expect.objectContaining({
-                instructions: 'Hello there',
+                flatInstructions: "[\"Hello there\"]",
                 recipeName: 'test1'
             }));
         });
@@ -251,7 +211,7 @@ describe("Recipe routes test", function() {
                 servingCount: 1,
                 farenheitTemp: 3,
                 minuteTotalTime: 1,
-                instructions: "Hello there",
+                instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
                 ingredients: [{
                         quantity: 20,
@@ -287,13 +247,13 @@ describe("Recipe routes test", function() {
         test("can patch an existing recipe", async function() {
             const changedInstructions = {
                 recipeUuid: sampleRecipeUuid1,
-                instructions: "Lots of cats, so many cats"
+                instructions: ["Lots of cats, so many cats"]
             };
             let response = await request(app)
                 .patch(`/recipes`)
                 .send(changedInstructions)
                 .set('Authorization', `Bearer ${token1}`);
-            expect(response.body.instructions).toEqual(changedInstructions.instructions);
+            expect(response.body.flatInstructions).toEqual(JSON.stringify(changedInstructions.instructions));
         });
         test("can't patch a recipe if not logged in", async function() {
             const changedInstructions = {

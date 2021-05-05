@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         additionalInfo: {
             type: DataTypes.TEXT,
             allowNull: true,
+        },
+        neededInStep: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     });
     RecipeIngredientJoin.associate = (models) => {

@@ -57,7 +57,7 @@ describe("Test recipe controller functions", function() {
     describe("Get recipe", function() {
         test("can get a recipe that exists", async function() {
             const found = await Recipe.getRecipe({ recipeName: 'soup for my family' });
-            expect(found.rows[0]).toEqual(expect.objectContaining({ recipeName: "soup for my family", recipeUuid: "40e6215d-b5c6-4896-987c-f30f3678f607", disabled: true, dietCategory: null, farenheitTemp: null, instructions: null, mealCategory: null, minutePrepTime: null, minuteTimeBake: null, minuteTotalTime: null, servingCount: null, toolsNeeded: null, websiteReference: null }));
+            expect(found.rows[0]).toEqual(expect.objectContaining({ recipeName: "soup for my family", recipeUuid: "40e6215d-b5c6-4896-987c-f30f3678f607", disabled: true }));
         });
         test("doesn't get a recipe if the filter is looking for the wrong thing", async function() {
             const found = await Recipe.getRecipe({ recipeName: 'shamsham shamina' });
@@ -76,15 +76,15 @@ describe("Test recipe controller functions", function() {
                 servingCount: 4,
                 farenheitTemp: 350,
                 minuteTotalTime: 45,
-                instructions: "Hello there",
+                instructions: ["Hello there", "I'm playing banjo"],
                 toolsNeeded: "My old friend"
             };
             const create = await Recipe.createRecipe(newRecipe);
-            expect(create).toEqual(expect.objectContaining(newRecipe));
+            expect(create).toEqual(expect.objectContaining({ recipeName: "test", servingCount: 4, farenheitTemp: 350, minuteTotalTime: 45 }));
             const found = await Recipe.getRecipe({
                 instructions: "there"
             });
-            expect(found.rows[0]).toEqual(expect.objectContaining(newRecipe));
+            expect(found.rows[0]).toEqual(expect.objectContaining({ recipeName: "test", servingCount: 4, farenheitTemp: 350, minuteTotalTime: 45 }));
         });
         test("can make a complex recipe", async function() {
             const newRecipe = {
@@ -92,7 +92,7 @@ describe("Test recipe controller functions", function() {
                 servingCount: 5,
                 farenheitTemp: 250,
                 minuteTotalTime: 45,
-                instructions: "Hello there",
+                instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
                 ingredients: [{
                         quantity: 20,
@@ -115,7 +115,7 @@ describe("Test recipe controller functions", function() {
                 servingCount: 5,
                 farenheitTemp: 250,
                 minuteTotalTime: 45,
-                instructions: "Hello there",
+                instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
             }));
             const joins = await RecipeIngredientJoin.getRecipeIngredients({ recipeUuid: create.recipeUuid });
@@ -133,7 +133,7 @@ describe("Test recipe controller functions", function() {
                 servingCount: 5,
                 farenheitTemp: 250,
                 minuteTotalTime: 45,
-                instructions: "Hello there",
+                instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
                 ingredients: [{
                         quantity: 20,
@@ -177,7 +177,7 @@ describe("Test recipe controller functions", function() {
             let update = {
                 recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607',
                 recipeName: 'soup for someone else',
-                instructions: 'I just realized we needed to have instructions',
+                instructions: ['I just realized we needed to have instructions'],
                 ingredients: [{
                     quantity: .25,
                     measurement: "teaspoon",
@@ -189,7 +189,7 @@ describe("Test recipe controller functions", function() {
             result = await Recipe.getFullRecipe({ recipeUuid: update.recipeUuid });
             expect(result).toEqual(expect.objectContaining({
                 recipeName: 'soup for someone else',
-                instructions: 'I just realized we needed to have instructions',
+                instructions: ['I just realized we needed to have instructions'],
             }));
             expect(result.Ingredients.length).toEqual(1);
         })
@@ -207,7 +207,7 @@ describe("Test recipe controller functions", function() {
                 servingCount: 4,
                 farenheitTemp: 350,
                 minuteTotalTime: 45,
-                instructions: "Hello there",
+                instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
                 userUuId: userUuId
             };
