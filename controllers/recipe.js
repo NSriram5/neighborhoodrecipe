@@ -258,6 +258,7 @@ const getMyRecipes = async function(userUuId, connected = false) {
             where: whereclause,
             raw: true,
             attributes: previewAttributes,
+            include: [userModel]
         })
         .catch((error) => {
             console.log(error);

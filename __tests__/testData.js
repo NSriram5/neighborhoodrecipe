@@ -22,7 +22,7 @@ const humus = {
     ingredients: [{
         label: "Smoked Paprika",
         measurement: "teaspoon",
-        quantity: "0.25"
+        quantity: 0.25
     }, {
         label: "Salt",
         measurement: "teaspoon",

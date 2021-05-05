@@ -217,7 +217,7 @@ describe("Test recipe controller functions", function() {
         });
         test("retrieve connected recipes", async function() {
             const retrieve = await Recipe.getMyRecipes(uuId2, connected = true);
-            let cat = 12;
+
             expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled1' })]));
             expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled2' })]));
         });
