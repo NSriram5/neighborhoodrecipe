@@ -60,9 +60,10 @@ router.get("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
             return res.json({ recipe });
         }
         const connections = await User.getConnections(res.locals.user.userUuId);
+        console.log(connections);
         let accessible = false;
-        for (connection of connections) {
-            if (connection.accepted && (connection.targetUuId == recipe.user.userUuId || connection.requestorUuId == recipe.user.userUuId)) {
+        for (let connection of connections) {
+            if (connection.accepted && (connection.targetUuId == recipeUser.userUuId || connection.requestorUuId == recipeUser.userUuId)) {
                 return res.json({ recipe });
             }
         }

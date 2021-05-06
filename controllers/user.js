@@ -165,6 +165,7 @@ const acceptUser = async function(selfUserUuId, requestorUuId) {
 const getConnections = async function(selfUserUuId) {
     try {
         let connections = await UserUserJoins.getUserUserConnections({ userUuId: selfUserUuId });
+        console.log(connections);
         return connections;
     } catch (error) {
         throw new ExpressError(error, 400);
