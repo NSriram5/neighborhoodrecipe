@@ -161,7 +161,7 @@ describe("Recipe routes test", function() {
                 .get(`/recipes/${sampleRecipeUuid1}`)
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.statusCode).toBe(200);
-            expect(response.body.rows).toContainEqual(expect.objectContaining({
+            expect(response.body.recipe).toEqual(expect.objectContaining({
                 flatInstructions: "[\"Hello there\"]",
                 recipeName: 'test1'
             }));
@@ -171,7 +171,7 @@ describe("Recipe routes test", function() {
                 .get(`/recipes/${sampleRecipeUuid1}`)
                 .set('Authorization', `Bearer ${token2}`);
             expect(response.statusCode).toBe(200);
-            expect(response.body.rows).toContainEqual(expect.objectContaining({
+            expect(response.body.recipe).toEqual(expect.objectContaining({
                 flatInstructions: "[\"Hello there\"]",
                 recipeName: 'test1'
             }));

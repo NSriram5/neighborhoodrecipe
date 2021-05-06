@@ -43,6 +43,17 @@ describe("Test all user controller functions", function() {
     });
 
     /**
+     * Use the controller to authenticate a user's credentials
+     */
+    describe("Authenticate user", function() {
+        test("Can authenticate a user that exists", async function() {
+            const user = await User.authenticateUser("Test1", "password");
+            expect(user.passwordHash).toBe(undefined);
+            expect(user).toEqual(expect.objectContaining({ userName: 'Test1', email: 'asdf@asdf.com' }));
+        })
+    })
+
+    /**
      * Use the controller to look for an existing user
      */
     describe("Get user", function() {

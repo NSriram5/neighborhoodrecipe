@@ -1,15 +1,103 @@
 const testUser1 = {
-    userName: "Test1",
+    userName: "TestUser1",
     password: "password",
     email: "asdf@asdf.com",
     wantsNutritionData: true
 }
 
 const testUser2 = {
-    userName: "Test2",
+    userName: "TestUser2",
     password: "password",
     email: "asdf2@asdf.com",
     wantsNutritionData: false
+}
+
+const moroccanlentilsoup = {
+    recipeName: "Moroccan Lentil Soup",
+    ingredients: [{
+        label: "Lemon Juice",
+        measurement: "tablespoons",
+        quantity: 2.0
+    }, {
+        label: "Cilantro",
+        measurement: "cup",
+        quantity: 0.5
+    }, {
+        label: "Spinach",
+        measurement: "cup",
+        quantity: 4.0,
+        prepInstructions: "chopped"
+    }, {
+        label: "Tomato Paste",
+        measurement: "tablespoons",
+        quantity: 2.0
+    }, {
+        label: "Tomato",
+        measurement: "can",
+        quantity: 1.0,
+        prepInstructions: "28 ounce"
+    }, {
+        label: "Red lentils",
+        measurement: "cup",
+        quantity: 1.750
+    }, {
+        label: "Cauliflower",
+        measurement: "cup",
+        quantity: 3,
+        prepInstructions: "chopped"
+    }, {
+        label: "Water",
+        measurement: "cup",
+        quantity: 2
+    }, {
+        label: "Vegetable Broth",
+        measurement: "cup",
+        quantity: 6.0
+    }, {
+        label: "Pepper",
+        measurement: "teaspoon",
+        quantity: 0.25
+    }, {
+        label: "Ground cinnamon",
+        measurement: "teaspoon",
+        quantity: 0.25
+    }, {
+        label: "Turmeric",
+        measurement: "teaspoon",
+        quantity: 1
+    }, {
+        label: "Coriander Powder",
+        measurement: "teaspoon",
+        quantity: 1.0
+    }, {
+        label: "Ground Cumin",
+        measurement: "teaspoon",
+        quantity: 1
+    }, {
+        label: "Garlic",
+        measurement: "whole",
+        quantity: 4.0,
+        prepInstructions: "minced clove"
+    }, {
+        label: "Carrot",
+        measurement: "cup",
+        quantity: 2.0
+    }, {
+        label: "Onion",
+        measurement: "cup",
+        quantity: 2.0,
+        prepInstructions: "chopped"
+    }, {
+        label: "Olive Oil",
+        measurement: "teaspoon",
+        quantity: 2.0
+    }],
+    instructions: ["1. Heat oil in a soup pot or Dutch oven over medium heat; add onions and carrots and cook, stirring occasionally, until softened, about 10 minutes. Stir in garlic and cook for 30 seconds. Add cumin, coriander, turmeric, cinnamon and pepper; cook, stirring, until fragrant, about 1 minute.", "2. Add broth, water, cauliflower, lentils, tomatoes and tomato paste; bring to a boil. Reduce heat and simmer, partially covered, stirring occasionally, until the lentils are tender but not mushy, 45 to 55 minutes. If cooking in instapot, omit the water, and cook at high pressure for 7.5 minutes.", "3. Stir in spinach and cook until wilted, 5 minutes.", "4. Just before serving, stir in cilantro and lemon juice."],
+    servingCount: 12,
+    minutePrepTime: 30,
+    minuteCookTime: 60,
+    minuteTotalTime: 90,
+    mealCategory: ["Lunch", "Dinner", "Soup"]
 }
 
 const humus = {
@@ -210,6 +298,7 @@ module.exports = {
     chickenSalad,
     rasam,
     humus,
+    moroccanlentilsoup,
     testUser1,
     testUser2,
 }

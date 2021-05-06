@@ -54,16 +54,16 @@ router.get("/view", ensureLoggedIn, async function(req, res, next) {
  */
 router.get("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
     try {
-        const recipe = await Recipe.getRecipe({ recipeUuid: req.params.recipeUuid });
-        let recipeUser = recipe.rows[0];
-        if (recipeUser.User.userUuId == res.locals.user.userUuId || recipeUser.User.userUuId == null || res.locals.user.isAdmin) {
-            return res.json(recipe);
+        const recipe = await Recipe.getFullRecipe({ recipeUuid: req.params.recipeUuid });
+        let recipeUser = recipe.User;
+        if (recipeUser.userUuId == res.locals.user.userUuId || recipeUser.userUuId == null || res.locals.user.isAdmin) {
+            return res.json({ recipe });
         }
         const connections = await User.getConnections(res.locals.user.userUuId);
         let accessible = false;
         for (connection of connections) {
             if (connection.accepted && (connection.targetUuId == recipe.user.userUuId || connection.requestorUuId == recipe.user.userUuId)) {
-                return res.json(recipe);
+                return res.json({ recipe });
             }
         }
         throw new ForbiddenError("You are not connected with the user that owns this recipe");

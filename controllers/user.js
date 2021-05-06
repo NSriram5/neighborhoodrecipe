@@ -120,11 +120,12 @@ const authenticateUser = async function(userName, password) {
     try {
         const users = await this.getUsers({ userName: userName }, true);
         for (user of users) {
+            let userDataValues = user.dataValues;
             if (user && user.passwordHash) {
                 const valid = await bcrypt.compare(password, user.passwordHash);
-                delete user.passwordHash;
+                delete userDataValues.passwordHash;
                 if (valid === true) {
-                    return user;
+                    return userDataValues;
                 }
             }
         }

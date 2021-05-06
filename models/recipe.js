@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        minuteCookTime: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         instructions: {
             type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,

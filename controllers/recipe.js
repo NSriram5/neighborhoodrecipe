@@ -11,11 +11,11 @@ const userModel = require('../models').User;
 const userUserJoinModel = require('../models').userUserJoins;
 
 const allAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'flatCategories', 'servingCount', 'websiteReference', 'farenheitTemp',
-    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'instructions', 'flatInstructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'minuteCookTime', 'instructions', 'flatInstructions', 'toolsNeeded', 'disabled', 'userUuId', 'photoUrl', 'edamamETag', 'kCals', 'fat', 'fatsat', 'fattrans', 'carbs', 'fiber', 'sugar', 'protein', 'cholesterol', 'sodium'
 ];
 
 const previewAttributes = ['recipeUuid', 'recipeName', 'mealCategory', 'dietCategory', 'flatCategories', 'servingCount', 'websiteReference', 'farenheitTemp',
-    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'flatInstructions', 'toolsNeeded', 'disabled', 'photoUrl'
+    'minuteTimeBake', 'minuteTotalTime', 'minutePrepTime', 'minuteCookTime', 'flatInstructions', 'toolsNeeded', 'disabled', 'photoUrl'
 ];
 
 
@@ -45,12 +45,15 @@ const createRecipe = async function(recipe) {
             })
             .catch((exception) => {
                 console.log(exception);
+                //console.log(recipe);
+                //console.log(element);
                 console.log('Error creating Ingredient within a recipe');
             })
     };
     //all ingredients have been created... Create the recipe now
     recipe.flatInstructions = JSON.stringify(recipe.instructions);
-    recipe.flatCategories = `${JSON.stringify(recipe.mealCategory)}${JSON.stringify(recipe.dietCategory)}`;
+    recipe.flatCategories = recipe.mealCategory ? JSON.stringify(recipe.mealCategory) : "";
+    recipe.flatCategories += recipe.dietCategory ? JSON.stringify(recipe.dietCategory) : "";
     let { ingredients, ...newRecipe } = recipe;
     return await Recipe
         .create(
@@ -136,7 +139,7 @@ const getRecipe = async function(filter) {
             where: whereclause,
             limitClause,
             offsetClause,
-            attributes: previewAttributes,
+            attributes: allAttributes,
             include: [userModel]
                 //raw: true,
         })
