@@ -102,8 +102,8 @@ const moroccanlentilsoup = {
 
 const humus = {
     recipeName: "Hummus",
-    mealCategory: [],
-    dietCategory: [],
+    mealCategory: ["side"],
+    dietCategory: ["vegetarian"],
     instructions: ["1. In a food processor, puree the chickpeas and garlic with the olive oil, lemon juice, tahini (if using), cumin, and ¾ teaspoon salt until smooth and creamy. Add 1 to 2 tablespoons water as necessary to achieve the desired consistency.", "2. Transfer to a bowl. Drizzle with olive oil and sprinkle with the paprika before serving."],
     servingCount: 4,
     toolsNeeded: "Instapot, immersion blender",
@@ -139,12 +139,12 @@ const humus = {
         prepInstructions: "Clove"
     }, {
         label: "Chickpeas",
-        measurement: "Can",
+        measurement: "can",
         quantity: 1.0,
         prepInstructions: "15 ounce can",
     }, {
         label: "Pepper",
-        measurement: "Teaspoon",
+        measurement: "teaspoon",
         quantity: 0.25,
         prepInstructions: "ground"
     }]
@@ -171,37 +171,37 @@ const rasam = {
     toolsNeeded: "Instapot",
     ingredients: [{
             label: "Mustard Seed",
-            measurement: "Teaspoon",
+            measurement: "teaspoon",
             quantity: 1,
         },
         {
             label: "Ghee",
-            measurement: "Tablespoon",
+            measurement: "tablespoon",
             quantity: 1,
         },
         {
             label: "Toor Dal",
-            measurement: "Cups",
+            measurement: "cups",
             quantity: 0.5,
         },
         {
             label: "Rasam powder",
-            measurement: "Tablespoon",
+            measurement: "tablespoon",
             quantity: 1,
         },
         {
             label: "Water",
-            measurement: "Cups",
+            measurement: "cups",
             quantity: 3.5,
         },
         {
             label: "Tamarind Paste",
-            measurement: "Tablespoon",
+            measurement: "tablespoon",
             quantity: 1,
         },
         {
             label: "Tomato",
-            measurement: "Whole",
+            measurement: "whole",
             quantity: 1,
             prepInstructions: "skinned and chopped"
         }

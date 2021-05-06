@@ -7,7 +7,7 @@ const User = require('../controllers/user');
 const Recipe = require('../controllers/recipe');
 const recipe = require("../models/recipe");
 const { patch } = require("../app");
-const { chickenSalad } = require("./testData");
+const { chickenSalad, rasam, humus, moroccanlentilsoup, bethsSoupBroth } = require("./testData");
 
 
 describe("Recipe routes test", function() {
@@ -288,6 +288,39 @@ describe("Recipe routes test", function() {
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.statusCode).toBe(200);
             expect(response.body.message).toBe("recipe deleted");
+        });
+    });
+
+    /**
+     * Testing to make sure that each of the test data recipes loads correctly.
+     */
+    describe("Testing out the pre-made test data", function() {
+        test("Can load the rasam recipe", async function() {
+            let response = await request(app)
+                .post("/recipes")
+                .send(rasam)
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.body.validMessage).toEqual("Recipe has been created");
+            response = await Recipe.getFullRecipe({ recipeName: "Rasam" });
+            expect(response.Ingredients).toContainEqual(expect.objectContaining({ label: "Ghee", measurement: "tablespoon", quantity: 1 }));
+        });
+        test("Can load the Hummus recipe", async function() {
+            let response = await request(app)
+                .post("/recipes")
+                .send(humus)
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.body.validMessage).toEqual("Recipe has been created");
+            response = await Recipe.getFullRecipe({ recipeName: "Hummus" });
+            expect(response.Ingredients).toContainEqual(expect.objectContaining({ label: "Smoked Paprika", measurement: "teaspoon", quantity: 0.25 }));
+        });
+        test("Can load the Moroccan Lentil Soup recipe", async function() {
+            let response = await request(app)
+                .post("/recipes")
+                .send(moroccanlentilsoup)
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.body.validMessage).toEqual("Recipe has been created");
+            response = await Recipe.getFullRecipe({ recipeName: "Moroccan Lentil Soup" });
+            expect(response.Ingredients).toContainEqual(expect.objectContaining({ label: "Lemon Juice", measurement: "tablespoons", quantity: 2.0 }));
         });
     });
 
