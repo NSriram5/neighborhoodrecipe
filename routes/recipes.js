@@ -128,6 +128,15 @@ router.get("/research/:recipeUuid", ensureLoggedIn, async function(req, res, nex
  */
 router.post("/", ensureLoggedIn, async function(req, res, next) {
     try {
+        req.body.servingCount = +req.body.servingCount ? +req.body.servingCount : null;
+        req.body.farenheitTemp = +req.body.farenheitTemp ? +req.body.farenheitTemp : null;
+        req.body.minuteTimeBake = +req.body.minuteTimeBake ? +req.body.minuteTimeBake : null;
+        req.body.minuteTotalTime = +req.body.minuteTotalTime ? +req.body.minuteTotalTime : null;
+        req.body.minutePrepTime = +req.body.minutePrepTime ? +req.body.minutePrepTime : null;
+        req.body.minuteCookTime = +req.body.minuteCookTime ? +req.body.minuteCookTime : null;
+        for (let ingredient of req.body.ingredients) {
+            ingredient.quantity = +ingredient.quantity;
+        }
         const validator = jsonschema.validate(req.body, recipeNew);
         if (!validator.valid) {
             const errs = validator.errors.map(e => e.stack);
@@ -136,7 +145,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
         req.body.userUuId = res.locals.user.userUuId;
         const recipe = await Recipe.createRecipe(req.body);
 
-        return res.json({ validMessage: "Recipe has been created" });
+        return res.json({ recipe, validMessage: "Recipe has been created" });
     } catch (err) {
         console.log(err);
         return next(err);
@@ -183,6 +192,7 @@ router.delete("/:recipeUuid", ensureLoggedIn, async function(req, res, next) {
         if (res.locals.user.isAdmin == false && res.locals.user.username != recipe.user) {
             throw new ForbiddenError("Only an admin or the user of this account can delete this recipe");
         }
+        console.log(`Preparing to delete recipe ${recipe.recipeName} based on parameters ${req.params.recipeUuid}`);
         let response = await Recipe.deleteRecipe(req.params.recipeUuid);
         if (response.message == "delete successful") {
             return res.json({ message: "recipe deleted" });

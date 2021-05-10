@@ -6,10 +6,10 @@ const cors = require("cors");
 const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
-//const usersRoutes = require("./routes/users");
 const recipesRoutes = require("./routes/recipes");
 const usersRoutes = require("./routes/user");
-//const ingredientsRoutes = require("./routes/ingredients");
+const ingredientsRoutes = require("./routes/ingredients");
+//const usersRoutes = require("./routes/users");
 //const { getUser } = require("./controllers/user");
 const user = require("./controllers/user");
 const path = require("path");
@@ -31,11 +31,10 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/recipes", recipesRoutes);
 app.use("/users", usersRoutes);
-//app.use("/ingredients", ingredientsRoutes);
+app.use("/ingredients", ingredientsRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function(req, res, next) {
-
     return next(new NotFoundError());
 });
 

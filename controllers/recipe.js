@@ -31,8 +31,7 @@ const createRecipe = async function(recipe) {
         let indingredient = {};
         indingredient.label = recipe.ingredients[element].label;
         //create ingredients
-        await Ingredient
-            .createIngredient(indingredient)
+        await Ingredient.createIngredient(indingredient)
             .then((result) => {
                 let recipeIngredientItem = {};
                 recipeIngredientItem.ingredientUuid = result.ingredientUuid;
@@ -44,11 +43,14 @@ const createRecipe = async function(recipe) {
                 recipeIngredientList.push(recipeIngredientItem);
             })
             .catch((exception) => {
+                console.log('**********************************Recipe Ingredient Creation Exception************************');
                 console.log(exception);
-                //console.log(recipe);
-                //console.log(element);
+                console.log(recipe);
+                console.log(element);
                 console.log('Error creating Ingredient within a recipe');
+                console.log('**********************************End Exception************************');
             })
+
     };
     //all ingredients have been created... Create the recipe now
     recipe.flatInstructions = JSON.stringify(recipe.instructions);
@@ -215,17 +217,18 @@ const getFullRecipe = async function(filter) {
 }
 
 const deleteRecipe = async function(recipeUuid) {
-    let whereclause = {};
     if (recipeUuid == undefined) {
         console.log('Error: no recipeUuid supplied', recipeUuid);
         return { error: true, message: 'No recipeUuid supplied. recipeUuid required to retrieve full recipeUuid' };
     }
-    whereclause.recipeUuid = {
-        [Op.eq]: recipeUuid
-    };
-    const response = await Recipe.findOne({
-        whereclause
-    });
+    let response
+    try {
+        response = await Recipe.findOne({ where: recipeUuid });
+        //response = await Recipe.findByPk(recipeUuid);
+    } catch (err) {
+        console.log(err);
+    }
+    console.log(`Delete is attempting to delete ${response.recipeName}::${response.recipeUuid} based on an input of ${recipeUuid}.`)
     if (!response) return { message: "delete unsuccessful" };
     await response.destroy();
     return { message: "delete successful" };

@@ -238,7 +238,7 @@ const bethsSoupBroth = {
         {
             label: "water",
             measurement: "cup",
-            quantity: 4,
+            quantity: 5,
             prepInstructions: "deionized",
             additionalInfo: "you can also use distilled"
         }

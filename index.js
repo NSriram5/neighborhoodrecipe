@@ -2,7 +2,7 @@ const user = require('./controllers/user');
 const fs = require('fs');
 const db = require('./models/index');
 const app = require("./app");
-const { seed } = require("./__tests__/seeding");
+const { seed } = require("./seeding/seeding");
 const { configuration } = require('./config/config');
 if (configuration.environmentOptions.environment == "LOCAL") {
     console.log("I'm in a local environment");

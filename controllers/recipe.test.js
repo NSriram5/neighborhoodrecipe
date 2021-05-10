@@ -4,6 +4,7 @@ const Recipe = require('../controllers/recipe');
 const User = require('../controllers/user');
 const UserUserJoins = require('../controllers/userUserJoins');
 const RecipeIngredientJoin = require('../controllers/recipeIngredientJoin');
+const { bethsSoupBroth } = require("../seeding/testData");
 
 describe("Test recipe controller functions", function() {
     let uuId1, uuId2, uuId3;
@@ -49,7 +50,7 @@ describe("Test recipe controller functions", function() {
         await User.inviteUser(uuId3, uuId2);
         await User.acceptUser(uuId2, uuId3);
         let a = "cat";
-    });
+    }, 30000);
 
     /**
      * Use the controller to look for an existing recipe
@@ -221,6 +222,17 @@ describe("Test recipe controller functions", function() {
             expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled1' })]));
             expect(retrieve).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'untitled2' })]));
         });
+    });
+
+    describe("load Beth's Soup Broth in through the controller", function() {
+        test("make Beth's Soup Broth through the controller", async function() {
+            bethsSoupBroth.userUuId = uuId2;
+            let response = await Recipe.createRecipe(bethsSoupBroth);
+            expect(response.dataValues).toEqual(expect.objectContaining({ recipeName: "Beth's soup broth" }));
+            response = await Recipe.getFullRecipe({ recipeName: "Beth's soup broth" })
+            expect(response.Ingredients).toEqual(expect.arrayContaining([expect.objectContaining({ label: "vegetable soup stock", measurement: "tablespoon" })]));
+            expect(response.Ingredients).toEqual(expect.arrayContaining([expect.objectContaining({ label: "water", measurement: "cup" })]));
+        })
     })
 
     afterAll(async function() {

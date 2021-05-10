@@ -7,13 +7,14 @@ const User = require('../controllers/user');
 const Recipe = require('../controllers/recipe');
 const recipe = require("../models/recipe");
 const { patch } = require("../app");
-const { chickenSalad, rasam, humus, moroccanlentilsoup, bethsSoupBroth } = require("./testData");
+const { chickenSalad, rasam, humus, moroccanlentilsoup, bethsSoupBroth } = require("../seeding/testData");
 
 
 describe("Recipe routes test", function() {
     let u1, u2
-    let sampleRecipeUuid, sampleRecipeUuid2;
+    let sampleRecipeUuid, sampleRecipeUuid2, bethsSoupUuid;
     let token1, token2;
+    let r1, r2, r3;
 
     beforeAll(async function() {
         await db.sequelize.sync({ force: true }).then(() => {
@@ -23,7 +24,8 @@ describe("Recipe routes test", function() {
                 console.error("Unable to connect to the database", err);
             });
     });
-    beforeEach(async function() {
+
+    beforeEach(async function init() {
         await db.sequelize.query('DELETE FROM "Users"');
         await db.sequelize.query('DELETE FROM "Recipes"');
         await db.sequelize.query('DELETE FROM "Ingredients"');
@@ -87,10 +89,9 @@ describe("Recipe routes test", function() {
         };
 
         chickenSalad.userUuId = u1.userUuId;
-
-        let r1 = Recipe.createRecipe(newRecipe);
-        let r2 = Recipe.createRecipe(secondRecipe);
-        let r3 = Recipe.createRecipe(chickenSalad);
+        r1 = Recipe.createRecipe(newRecipe);
+        r2 = Recipe.createRecipe(secondRecipe);
+        r3 = Recipe.createRecipe(chickenSalad);
         [r1, r2, r3] = await Promise.all([r1, r2, r3]);
         sampleRecipeUuid1 = r1.recipeUuid;
         sampleRecipeUuid2 = r2.recipeUuid;
@@ -103,7 +104,8 @@ describe("Recipe routes test", function() {
             .post("/auth/token")
             .send({ userName: "Test1", password: "password" });
         token1 = response.body.token;
-    });
+
+    }, 30000);
 
     /**
      * GET /recipes
@@ -211,6 +213,8 @@ describe("Recipe routes test", function() {
                 servingCount: 1,
                 farenheitTemp: 3,
                 minuteTotalTime: 1,
+                minuteTimeBake: "",
+                minutePrepTime: "",
                 instructions: ["Hello there"],
                 toolsNeeded: "My old friend",
                 ingredients: [{
@@ -238,6 +242,14 @@ describe("Recipe routes test", function() {
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.body.recipes.count).toEqual(4);
         });
+        test("can post Beth's soup stock", async function() {
+            let response = await request(app)
+                .post("/recipes")
+                .send(bethsSoupBroth)
+                .set('Authorization', `Bearer ${token1}`);
+            response = await Recipe.getFullRecipe({ recipeName: "Beth's soup broth" });
+            expect(response.ingredients).toEqual(expect.toContainEqual(expect.objectContaining({ label: 'vegetable soup stock', measurement: 'tablespoon' })));
+        })
     });
 
     /**
@@ -284,10 +296,33 @@ describe("Recipe routes test", function() {
     describe("DELETE /recipes/[recipeUuid]", function() {
         test("can delete a recipe", async function() {
             let response = await request(app)
+                .get(`/recipes/adminall`)
+                .set(`Authorization`, `Bearer ${token2}`);
+            expect(response.body.recipes.rows).toContainEqual(expect.objectContaining({ recipeName: 'test1' }));
+            response = await request(app)
                 .delete(`/recipes/${sampleRecipeUuid1}`)
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.statusCode).toBe(200);
             expect(response.body.message).toBe("recipe deleted");
+            response = await request(app)
+                .get(`/recipes/adminall`)
+                .set(`Authorization`, `Bearer ${token2}`);
+            expect(response.body.recipes).toEqual(expect.not.objectContaining({ recipeName: 'test1' }));
+        });
+        test("can delete a recipe", async function() {
+            let response = await request(app)
+                .get(`/recipes/adminall`)
+                .set(`Authorization`, `Bearer ${token2}`);
+            expect(response.body.recipes.rows).toContainEqual(expect.objectContaining({ recipeName: 'test2' }));
+            response = await request(app)
+                .delete(`/recipes/${sampleRecipeUuid2}`)
+                .set('Authorization', `Bearer ${token1}`);
+            expect(response.statusCode).toBe(200);
+            expect(response.body.message).toBe("recipe deleted");
+            response = await request(app)
+                .get(`/recipes/adminall`)
+                .set(`Authorization`, `Bearer ${token2}`);
+            expect(response.body.recipes).toEqual(expect.not.objectContaining({ recipeName: 'test2' }));
         });
     });
 

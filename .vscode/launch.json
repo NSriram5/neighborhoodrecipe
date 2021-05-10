@@ -10,11 +10,11 @@
         "request": "launch",
         "program": "${workspaceRoot}/node_modules/.bin/jest",
         "args": [
-          
           "--runInBand",
           "--detectOpenHandles"
         ],
         "runtimeArgs": [
+          "${workspaceRoot}/node_modules/.bin/jest",
           "--inspect-brk"
         ],
         "cwd": "${workspaceFolder}",

@@ -19,13 +19,12 @@ async function seed() {
     rasam.userUuId = u2.userUuId;
     humus.userUuId = u2.userUuId;
     moroccanlentilsoup.userUuId = u1.userUuId;
-    const [r1, r2] = await Promise.all([Recipe.createRecipe(bethsSoupBroth),
-        Recipe.createRecipe(chickenSalad),
-    ])
-    const [r3] = await Promise.all([
-        Recipe.createRecipe(rasam),
-    ]);
-    const [r4, r5] = await Promise.all([Recipe.createRecipe(humus), Recipe.createRecipe(moroccanlentilsoup)]);
+    const r1 = await Recipe.createRecipe(bethsSoupBroth);
+    const r2 = await Recipe.createRecipe(chickenSalad);
+    const r3 = await Recipe.createRecipe(rasam);
+    const r4 = await Recipe.createRecipe(humus);
+    const r5 = await Recipe.createRecipe(moroccanlentilsoup);
+
     console.log(r1);
     console.log(r2);
     console.log(r3);
