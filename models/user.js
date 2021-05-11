@@ -31,10 +31,20 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             primaryKey: true
         },
+        connectionCode: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: true
+        },
+        privacySetting: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false
+        },
         wantsNutritionData: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
-            allowNull: true
+            allowNull: false
         }
     });
     User.associate = (models) => {
@@ -49,6 +59,9 @@ module.exports = (sequelize, DataTypes) => {
             as: 'friendsMe',
             foreignKey: 'targetUuId',
             onDelete: 'CASCADE'
+        });
+        User.hasMany(models.userUserJoins, {
+            as: 'friendsList'
         });
         User.hasMany(models.Recipe, {
             foreignKey: 'userUuId',

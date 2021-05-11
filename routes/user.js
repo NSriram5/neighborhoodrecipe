@@ -50,6 +50,45 @@ router.get("/:userUuId", ensureLoggedIn, async function(req, res, next) {
 });
 
 /**
+ * POST emailSearch/ => finds a user that matches the email listed in the post body
+ * 
+ * Returns the basic information about a user that matches an email parameter
+ * 
+ * Authorization required: login
+ */
+router.post("/emailSearch", ensureLoggedIn, async function(req, res, next) {
+    try {
+        const filter = {...req.body, privacySetting: False };
+        const response = await User.getUsers(filter);
+        return res.json({ response })
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+})
+
+/**
+ * GET /requests/:userUuId => returns a list of connection requests for a given user
+ * 
+ * Returns a list of users that have pending incoming connection requests
+ * 
+ * Authorization required: login and user of target search OR admin
+ */
+router.get("/requests/:userUuId", ensureLoggedIn, async function(req, res, next) {
+    try {
+        if (res.locals.user.isAdmin == false && res.locals.user.userUuId != req.params.userUuId) {
+            throw new ForbiddenError("Only an admin or the user of this account can view these details");
+        }
+        const users = await UserUserJoins.getPendingIncConnections(req.params.userUuId);
+        return res.json({ users });
+
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+})
+
+/**
  * POST /:userUuId => updates a user's information
  * 
  * Returns the updated user info

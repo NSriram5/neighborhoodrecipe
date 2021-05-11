@@ -4,7 +4,7 @@ const Recipe = require('../controllers/recipe');
 const User = require('../controllers/user');
 const UserUserJoins = require('../controllers/userUserJoins');
 const RecipeIngredientJoin = require('../controllers/recipeIngredientJoin');
-const { bethsSoupBroth } = require("../seeding/testData");
+const { bethsSoupBroth, moroccanlentilsoup, humus, chickenSalad, rasam } = require("../seeding/testData");
 
 describe("Test recipe controller functions", function() {
     let uuId1, uuId2, uuId3;
@@ -49,7 +49,6 @@ describe("Test recipe controller functions", function() {
         await User.acceptUser(uuId2, uuId1);
         await User.inviteUser(uuId3, uuId2);
         await User.acceptUser(uuId2, uuId3);
-        let a = "cat";
     }, 30000);
 
     /**
@@ -163,7 +162,7 @@ describe("Test recipe controller functions", function() {
      */
     describe("Delete a recipe", function() {
         test("Can delete a recipe", async function() {
-            const result = await Recipe.deleteRecipe({ recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607' });
+            const result = await Recipe.deleteRecipe('40e6215d-b5c6-4896-987c-f30f3678f607');
             expect(result.message).toEqual("delete successful");
             const find = await Recipe.getRecipe({ recipeUuid: '40e6215d-b5c6-4896-987c-f30f3678f607' });
             expect(find.count).toEqual(0);
@@ -201,7 +200,7 @@ describe("Test recipe controller functions", function() {
      */
     describe("retrieve a user's recipe", function() {
         test("make a recipe then retrieve it based on user's uuid", async function() {
-            const user = User.createUser({ password: "password", email: "a", userName: "a", isAdmin: false, disabled: false })
+            const user = await User.createUser({ password: "password", email: "a", userName: "a", isAdmin: false, disabled: false })
             const userUuId = user.userUuId;
             const newRecipe = {
                 recipeName: "test",
@@ -232,6 +231,29 @@ describe("Test recipe controller functions", function() {
             response = await Recipe.getFullRecipe({ recipeName: "Beth's soup broth" })
             expect(response.Ingredients).toEqual(expect.arrayContaining([expect.objectContaining({ label: "vegetable soup stock", measurement: "tablespoon" })]));
             expect(response.Ingredients).toEqual(expect.arrayContaining([expect.objectContaining({ label: "water", measurement: "cup" })]));
+        })
+    })
+
+    describe("development tests", function() {
+        let r1, r2, r3, r4;
+
+        beforeEach(async function() {
+            humus.userUuId = uuId1;
+            bethsSoupBroth.userUuId = uuId3;
+            moroccanlentilsoup.userUuId = uuId2;
+            chickenSalad.userUuId = uuId3;
+            rasam.userUuId = uuId1;
+            r1 = await Recipe.createRecipe(bethsSoupBroth);
+            r2 = await Recipe.createRecipe(chickenSalad);
+            r3 = await Recipe.createRecipe(rasam);
+            r4 = await Recipe.createRecipe(humus);
+            r5 = await Recipe.createRecipe(moroccanlentilsoup);
+
+        }, 30000);
+
+        test("testing if a user can be queried to see all user friends", async function() {
+            let response = await Recipe.getMyRecipes(uuId2, true, "");
+            expect(2).toEqual(2);
         })
     })
 

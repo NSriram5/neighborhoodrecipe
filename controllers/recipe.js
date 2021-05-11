@@ -54,6 +54,9 @@ const createRecipe = async function(recipe) {
     };
     //all ingredients have been created... Create the recipe now
     recipe.flatInstructions = JSON.stringify(recipe.instructions);
+    recipe.flatIngredients = recipe.ingredients ? recipe.ingredients.reduce((acc, curr) => {
+        return `${acc} ${curr.label}`;
+    }, '') : "";
     recipe.flatCategories = recipe.mealCategory ? JSON.stringify(recipe.mealCategory) : "";
     recipe.flatCategories += recipe.dietCategory ? JSON.stringify(recipe.dietCategory) : "";
     let { ingredients, ...newRecipe } = recipe;
@@ -223,54 +226,141 @@ const deleteRecipe = async function(recipeUuid) {
     }
     let response
     try {
-        response = await Recipe.findOne({ where: recipeUuid });
+        response = await Recipe.findOne({ where: { recipeUuid: recipeUuid }, logging: console.log });
         //response = await Recipe.findByPk(recipeUuid);
     } catch (err) {
         console.log(err);
     }
-    console.log(`Delete is attempting to delete ${response.recipeName}::${response.recipeUuid} based on an input of ${recipeUuid}.`)
     if (!response) return { message: "delete unsuccessful" };
     await response.destroy();
     return { message: "delete successful" };
 }
 
-const getMyRecipes = async function(userUuId, connected = false) {
+const getMyRecipes = async function(userUuId, connected = false, searchParams = undefined) {
     let whereclause = {};
-    let me = db;
-    if (connected) {
-        let frienduuids1 = userUserJoinModel.findAll({
-            where: { requestorUuId: userUuId },
-            attributes: ['targetUuId'],
-            raw: true
-        })
-        let frienduuids2 = userUserJoinModel.findAll({
-            where: { targetUuId: userUuId },
-            attributes: ['requestorUuId'],
+    if (searchParams) {
+        whereclause = {
+            [Op.or]: [{
+                    recipeName: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                },
+                {
+                    recipeName: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                },
+                {
+                    flatCategories: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                },
+                {
+                    websiteReference: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                },
+                {
+                    flatInstructions: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                },
+                {
+                    flatIngredients: {
+                        [Op.iLike]: '%' + searchParams + '%'
+                    }
+                }
+            ]
+        }
+    }
+    let recipesFromOthers
+    try {
+        recipesFromOthers = await userModel.findAll({
+            where: {
+                userUuId: {
+                    [Op.eq]: userUuId
+                }
+            },
+            include: [{
+                    model: userModel,
+                    as: "friends",
+                    include: [{
+                        model: Recipe,
+                        where: whereclause
+                    }],
+                },
+                {
+                    model: userModel,
+                    as: "friendsMe",
+                    include: [{
+                        model: Recipe,
+                        where: whereclause
+                    }],
+                }
+            ],
+            //raw: true,
+            nest: true,
+            logging: console.log
+        });
+    } catch (err) {
+        console.log(err);
+    }
+    let recipesFromMe
+    try {
+        recipesFromMe = await Recipe.findAll({
+            where: { userUuId: userUuId, ...whereclause },
             raw: true
         });
-        [frienduuids1, frienduuids2] = await Promise.all([frienduuids1, frienduuids2]);
-        let superfriends = [userUuId, ...frienduuids1.map((item) => item['targetUuId']), ...frienduuids2.map((item) => item['requestorUuId'])];
-
-        whereclause.userUuId = {
-            [Op.or]: superfriends
-        };
-    } else {
-        whereclause.userUuId = {
-            [Op.eq]: userUuId
-        };
+    } catch (err) {
+        console.log(err);
     }
-    return Recipe
-        .findAll({
-            where: whereclause,
-            raw: true,
-            attributes: previewAttributes,
-            include: [userModel]
-        })
-        .catch((error) => {
-            console.log(error);
-            return error;
-        })
+    let friendsWithRecipes = [...recipesFromOthers[0].friendsMe, ...recipesFromOthers[0].friends]
+    let theirRecipes = friendsWithRecipes.reduce((acc, curr) => { return [...acc, ...curr.Recipes] }, []);
+    let theirRecipesDataValues = theirRecipes.map((item) => { return item.dataValues });
+
+    let allFound = [...recipesFromMe, ...theirRecipesDataValues];
+    return allFound;
 }
+
+
+// const getMyRecipes = async function(userUuId, connected = false, searchParams = undefined) {
+//     let whereclause = {};
+
+//     if (connected) {
+//         let frienduuids1 = userUserJoinModel.findAll({
+//             where: { requestorUuId: userUuId },
+//             attributes: ['targetUuId'],
+//             raw: true
+//         })
+//         let frienduuids2 = userUserJoinModel.findAll({
+//             where: { targetUuId: userUuId },
+//             attributes: ['requestorUuId'],
+//             raw: true
+//         });
+//         [frienduuids1, frienduuids2] = await Promise.all([frienduuids1, frienduuids2]);
+//         let superfriends = [userUuId, ...frienduuids1.map((item) => item['targetUuId']), ...frienduuids2.map((item) => item['requestorUuId'])];
+
+//         whereclause.userUuId = {
+//             [Op.or]: superfriends
+//         };
+//     } else {
+//         whereclause.userUuId = {
+//             [Op.eq]: userUuId
+//         };
+//     }
+//     return Recipe
+//         .findAll({
+//             logging: console.log,
+//             where: whereclause,
+//             raw: true,
+//             attributes: previewAttributes,
+//             include: [user]
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             return error;
+//         })
+// }
 
 const updateRecipe = async function(recipe) {
     let whereclause = {};
@@ -309,6 +399,9 @@ const updateRecipe = async function(recipe) {
                 console.log('Error creating Ingredient');
             })
     };
+    recipe.flatIngredients = recipe.ingredients.reduce((acc, curr) => {
+        return `${acc} ${curr.label}`;
+    }, '');
     recipe.flatInstructions = recipe.instructions ? JSON.stringify(recipe.instructions) : "";
     recipe.flatCategories = (recipe.mealCategory || recipe.dietCategory) ? `${JSON.stringify(recipe.mealCategory)}${JSON.stringify(recipe.dietCategory)}` : "";
     let newRecipe = {...recipe }

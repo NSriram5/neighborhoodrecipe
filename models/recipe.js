@@ -59,6 +59,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        flatIngredients: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         toolsNeeded: {
             type: DataTypes.TEXT,
             allowNull: true,

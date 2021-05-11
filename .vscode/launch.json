@@ -14,7 +14,7 @@
           "--detectOpenHandles"
         ],
         "runtimeArgs": [
-          "${workspaceRoot}/node_modules/.bin/jest",
+          //"${workspaceRoot}/node_modules/.bin/jest",
           "--inspect-brk"
         ],
         "cwd": "${workspaceFolder}",

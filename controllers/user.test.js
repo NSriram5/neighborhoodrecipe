@@ -40,7 +40,7 @@ describe("Test all user controller functions", function() {
         } catch (err) {
             //console.log(err);
         }
-    });
+    }, 30000);
 
     /**
      * Use the controller to authenticate a user's credentials

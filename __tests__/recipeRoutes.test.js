@@ -12,6 +12,7 @@ const { chickenSalad, rasam, humus, moroccanlentilsoup, bethsSoupBroth } = requi
 
 describe("Recipe routes test", function() {
     let u1, u2
+    let secondRecipe = {};
     let sampleRecipeUuid, sampleRecipeUuid2, bethsSoupUuid;
     let token1, token2;
     let r1, r2, r3;
@@ -64,7 +65,7 @@ describe("Recipe routes test", function() {
                 }
             ]
         };
-        const secondRecipe = {
+        secondRecipe = {
             recipeName: "test2",
             servingCount: 10,
             farenheitTemp: 500,
@@ -248,7 +249,7 @@ describe("Recipe routes test", function() {
                 .send(bethsSoupBroth)
                 .set('Authorization', `Bearer ${token1}`);
             response = await Recipe.getFullRecipe({ recipeName: "Beth's soup broth" });
-            expect(response.ingredients).toEqual(expect.toContainEqual(expect.objectContaining({ label: 'vegetable soup stock', measurement: 'tablespoon' })));
+            expect(response.Ingredients).toContainEqual((expect.objectContaining({ label: 'vegetable soup stock', measurement: 'tablespoon' })));
         })
     });
 
@@ -257,37 +258,45 @@ describe("Recipe routes test", function() {
      */
     describe("PATCH /recipes", function() {
         test("can patch an existing recipe", async function() {
-            const changedInstructions = {
-                recipeUuid: sampleRecipeUuid1,
-                instructions: ["Lots of cats, so many cats"]
-            };
+            const changedInstructions = {...secondRecipe }
+            changedInstructions.instructions = ["Lots of cats, so many cats"];
             let response = await request(app)
                 .patch(`/recipes`)
                 .send(changedInstructions)
-                .set('Authorization', `Bearer ${token1}`);
+                .set('Authorization', `Bearer ${token2}`);
             expect(response.body.flatInstructions).toEqual(JSON.stringify(changedInstructions.instructions));
         });
         test("can't patch a recipe if not logged in", async function() {
-            const changedInstructions = {
-                recipeUuid: sampleRecipeUuid2,
-                instructions: "Lots of cats, so many cats"
-            };
+            const changedInstructions = {...secondRecipe }
+            changedInstructions.instructions = ["Lots of cats, so many cats"];
             let response = await request(app)
                 .patch(`/recipes`)
                 .send(changedInstructions);
             expect(response.statusCode).toBe(401);
         });
         test("can't patch a recipe if not the user/admin", async function() {
-            const changedInstructions = {
-                recipeUuid: sampleRecipeUuid2,
-                instructions: "Lots of cats, so many cats"
-            };
+            const changedInstructions = {...secondRecipe }
+            changedInstructions.recipeUuid = sampleRecipeUuid2;
+            changedInstructions.instructions = ["Lots of cats, so many cats"];
             response = await request(app)
                 .patch(`/recipes`)
                 .send(changedInstructions)
                 .set('Authorization', `Bearer ${token1}`);
             expect(response.statusCode).toBe(403);
-
+        });
+        test("can patch a moroccan soup recipe", async function() {
+            moroccanlentilsoup.userUuId = u1.userUuId;
+            let response = await Recipe.createRecipe(moroccanlentilsoup);
+            const change = {
+                ...moroccanlentilsoup,
+                recipeUuid: response.recipeUuid
+            }
+            change.minutePrepTime = 99;
+            response = await request(app)
+                .patch(`/recipes`)
+                .send(change)
+                .set(`Authorization`, `Bearer ${token1}`);
+            expect(2).toEqual(2);
         });
     });
     /**
@@ -302,14 +311,14 @@ describe("Recipe routes test", function() {
             response = await request(app)
                 .delete(`/recipes/${sampleRecipeUuid1}`)
                 .set('Authorization', `Bearer ${token1}`);
-            expect(response.statusCode).toBe(200);
-            expect(response.body.message).toBe("recipe deleted");
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.message).toEqual("recipe deleted");
             response = await request(app)
                 .get(`/recipes/adminall`)
                 .set(`Authorization`, `Bearer ${token2}`);
-            expect(response.body.recipes).toEqual(expect.not.objectContaining({ recipeName: 'test1' }));
+            expect(response.body.recipes.rows).not.toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'test1' })]));
         });
-        test("can delete a recipe", async function() {
+        test("cannot delete a recipe if not an admin/owner of recipe", async function() {
             let response = await request(app)
                 .get(`/recipes/adminall`)
                 .set(`Authorization`, `Bearer ${token2}`);
@@ -317,12 +326,12 @@ describe("Recipe routes test", function() {
             response = await request(app)
                 .delete(`/recipes/${sampleRecipeUuid2}`)
                 .set('Authorization', `Bearer ${token1}`);
-            expect(response.statusCode).toBe(200);
-            expect(response.body.message).toBe("recipe deleted");
+            expect(response.statusCode).toEqual(403);
+            expect(response.body.error.message).toEqual("Only an admin or the user of this account can delete this recipe");
             response = await request(app)
                 .get(`/recipes/adminall`)
                 .set(`Authorization`, `Bearer ${token2}`);
-            expect(response.body.recipes).toEqual(expect.not.objectContaining({ recipeName: 'test2' }));
+            expect(response.body.recipes.rows).toContainEqual(expect.objectContaining({ recipeName: 'test2' }));
         });
     });
 
