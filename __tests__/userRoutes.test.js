@@ -4,6 +4,7 @@ const app = require("../app");
 const db = require("../models/index");
 const User = require("../controllers/user");
 const UserUserJoins = require("../controllers/userUserJoins");
+const user = require("../models/user");
 
 
 describe("Test all user routes", function() {
@@ -78,7 +79,11 @@ describe("Test all user routes", function() {
         test("u1 changes password, username, and indicates they don't want nutrition data", async function() {
             let { updatedAt, createdAt, ...useritems } = u1;
             useritems.wantsNutritionData = false;
-            useritems.password = "treeforest";
+            useritems.oldUserName = useritems.userName;
+            useritems.newPassword = "treeforest";
+            useritems.oldPassword = "password";
+            delete useritems.userName;
+            delete useritems.password;
             useritems.userName = "treebeard";
             let response = await request(app)
                 .post(`/users/${u1.userUuId}`)

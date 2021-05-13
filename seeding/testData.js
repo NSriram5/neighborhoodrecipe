@@ -2,14 +2,16 @@ const testUser1 = {
     userName: "TestUser1",
     password: "password",
     email: "asdf@asdf.com",
-    wantsNutritionData: true
+    wantsNutritionData: true,
+    privacySetting: false
 }
 
 const testUser2 = {
     userName: "TestUser2",
     password: "password",
     email: "asdf2@asdf.com",
-    wantsNutritionData: false
+    wantsNutritionData: false,
+    privacySetting: false
 }
 
 const moroccanlentilsoup = {

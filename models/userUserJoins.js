@@ -11,21 +11,23 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         }
     });
+
+    UserUserJoins.associate = (models) => {
+        UserUserJoins.belongsTo(models.User, {
+                foreignKey: "requestorUuId",
+                as: "requestor",
+                onDelete: 'CASCADE'
+            }),
+            UserUserJoins.belongsTo(models.User, {
+                foreignKey: "targetUuId",
+                as: "target",
+                onDelete: 'CASCADE'
+            })
+    };
+
     // UserUserJoins.associate = (models) => {
-    //     UserUserJoins.belongsTo(models.User, {
-    //             foreignKey: "userUuId",
-    //             as: "requestorUuId",
-    //             onDelete: 'CASCADE'
-    //         }),
-    //         UserUserJoins.belongsTo(models.User, {
-    //             foreignKey: "userUuId",
-    //             as: "targetUuId",
-    //             onDelete: 'CASCADE'
-    //         })
-    // };
+    //     UserUserJoins.belongsTo(models.User)
+    // }
 
     return UserUserJoins;
 }
-
-
-

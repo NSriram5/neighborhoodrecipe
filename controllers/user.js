@@ -7,7 +7,7 @@ const { BCRYPT_WORK_FACTOR } = require("../config/config.js");
 const { BadRequestError, ExpressError } = require("../expressError");
 
 const allAttributes = ['email', 'userName', 'isAdmin',
-    'disabled', 'userUuId', 'wantsNutritionData'
+    'disabled', 'userUuId', 'wantsNutritionData', 'privacySetting'
 ]
 
 /**

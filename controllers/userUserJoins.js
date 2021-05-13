@@ -1,4 +1,5 @@
 const userUserJoins = require('../models').userUserJoins;
+const userModel = require('../models').User;
 const Op = require('../models').Sequelize.Op;
 const { BadRequestError, ExpressError, NotFoundError } = require("../expressError");
 
@@ -47,7 +48,9 @@ const getUserUserConnections = async function(filter) {
     return userUserJoins.findAll({
         where: whereclause,
         returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
-        //raw: true
+        include: ['requestor', 'target'],
+        nest: true,
+        raw: true
     }).catch((error) => {
         console.log(error);
         return error;
@@ -164,6 +167,10 @@ const acceptConnection = async function(selfUuId, targetUuId) {
 }
 
 const newConnectionRequest = async function(targetUuId, selfUuId) {
+    if (targetUuId == undefined || selfUuId == undefined) {
+        console.log("Either a targetUuId or a selfUuId was not provided");
+        throw new BadRequestError(`targetUuId: ${targetUuId} or selfUuId: ${selfUuId} is not defined`);
+    }
     const response = await checkIfConnected(selfUuId, targetUuId);
     if (response) throw new BadRequestError("Connection already exists");
     return userUserJoins.create({ targetUuId, requestorUuId: selfUuId })

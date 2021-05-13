@@ -79,7 +79,7 @@ router.get("/requests/:userUuId", ensureLoggedIn, async function(req, res, next)
         if (res.locals.user.isAdmin == false && res.locals.user.userUuId != req.params.userUuId) {
             throw new ForbiddenError("Only an admin or the user of this account can view these details");
         }
-        const users = await UserUserJoins.getPendingIncConnections(req.params.userUuId);
+        const users = await UserUserJoins.getUserUserConnections({ userUuId: req.params.userUuId });
         return res.json({ users });
 
     } catch (err) {
@@ -102,6 +102,14 @@ router.post("/:userUuId", ensureLoggedIn, async function(req, res, next) {
             const errs = validator.errors.map(e => e.stack);
             throw new BadRequestError(errs);
         }
+        const valid = await User.authenticateUser(req.body.oldUserName, req.body.oldPassword);
+        if (!valid) {
+            throw new ExpressError("Invalid userName or password", 400);
+        }
+        req.body.password = req.body.newPassword;
+        delete req.body.oldUserName;
+        delete req.body.oldPassword;
+        delete req.body.newPassword;
         const user = await User.updateUser(req.body);
         return res.json(user);
     } catch (err) {
