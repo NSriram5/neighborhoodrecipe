@@ -120,11 +120,12 @@ const authenticateUser = async function(userName, password) {
     try {
         const users = await this.getUsers({ userName: userName }, true);
         for (user of users) {
+            let userDataValues = user.dataValues;
             if (user && user.passwordHash) {
                 const valid = await bcrypt.compare(password, user.passwordHash);
-                delete user.passwordHash;
+                delete userDataValues.passwordHash;
                 if (valid === true) {
-                    return user;
+                    return userDataValues;
                 }
             }
         }
@@ -164,6 +165,7 @@ const acceptUser = async function(selfUserUuId, requestorUuId) {
 const getConnections = async function(selfUserUuId) {
     try {
         let connections = await UserUserJoins.getUserUserConnections({ userUuId: selfUserUuId });
+        console.log(connections);
         return connections;
     } catch (error) {
         throw new ExpressError(error, 400);

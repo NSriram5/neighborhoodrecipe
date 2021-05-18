@@ -42,20 +42,19 @@ const getIngredient = async function(filter) {
 }
 
 const getAutoComplete = async function(partialLabel) {
-    whereclause = {
-        label: {
-            [Op.iLike]: '%' + partialLabel + '%'
-        }
-    };
+    whereclause = Sequelize.where(Sequelize.fn('lower', Sequelize.col('label')), {
+        [Op.iLike]: '%' + partialLabel + '%'
+    });
     return Ingredient.findAll({
             where: whereclause,
-            attributes: "label"
+            attributes: ["label"]
         })
         .then((result) => {
             return result;
         })
         .catch(error => {
-            throw new ExpressError(error, 400);
+            console.log(err)
+            return err;
         })
 }
 

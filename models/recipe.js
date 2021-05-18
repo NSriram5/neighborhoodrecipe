@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         },
+        flatCategories: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         servingCount: {
             type: DataTypes.INTEGER,
             allowNull: true,
@@ -43,9 +47,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        minuteCookTime: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         instructions: {
-            type: DataTypes.TEXT,
+            type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
+        },
+        flatInstructions: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        flatIngredients: {
+            type: DataTypes.TEXT,
+            allowNull: true
         },
         toolsNeeded: {
             type: DataTypes.TEXT,

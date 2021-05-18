@@ -127,7 +127,7 @@
         },
         "instructions": {
             "$id": "#/properties/instructions",
-            "type": "string",
+            "type": "array",
             "title": "The instructions schema",
             "description": "An explanation about the purpose of this instance.",
             "default": "",

@@ -12,6 +12,7 @@ function checkInputSelfTarget(selfUuId, targetUuId) {
 }
 
 const getUserUserConnections = async function(filter) {
+    console.log(filter.userUuId);
     if (filter == undefined) {
         return { error: 'You must submit filter criteria' };
     }
@@ -42,6 +43,7 @@ const getUserUserConnections = async function(filter) {
             };
         }
     }
+    console.log(whereclause);
     return userUserJoins.findAll({
         where: whereclause,
         returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],

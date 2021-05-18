@@ -54,6 +54,27 @@ describe("authenticateJWT", function() {
     });
 });
 
+// describe("troubleshooting a specific JWT", function() {
+//     test("should be able to validate", function() {
+//         let problemUuId = 'b54385e9-6869-4181-bb6c-842991402c63';
+//         let problemuserName = 'artain';
+//         let problemisAdmin = false
+//         let problemPayload = {
+//             userName: problemuserName,
+//             userUuId: problemUuId,
+//             isAdmin: problemisAdmin
+//         }
+//         let createdJWT = jwt.sign(problemPayload, SECRET_KEY);
+//         let problemJWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6ImFydGFpbiIsInVzZXJVdUlkIjoiYjU0Mzg1ZTktNjg2OS00MTgxLWJiNmMtODQyOTkxNDAyYzYzIiwiaXNBZG1pbiI6ZmFsc2UsImlhdCI6MTYyMDE5NjA2OH0.8_k3NYpClkyIn-Et4Mq0olBvvF3KBU45aYydTfi9P4k';
+//         const req = { headers: { authorization: `Bearer ${problemJWT}` } }
+//         const res = { locals: {} };
+//         const next = function(err) {
+//             expect(err).toBeFalsy();
+//         };
+//         authenticateJWT(req, res, next);
+//         expect(res.locals).toEqual("fish");
+//     })
+// })
 
 describe("ensureLoggedIn", function() {
     test("works", function() {

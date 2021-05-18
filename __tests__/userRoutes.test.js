@@ -10,7 +10,7 @@ describe("Test all user routes", function() {
     let u1, u2, token1, token2;
 
     beforeAll(async function() {
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {
@@ -142,6 +142,6 @@ describe("Test all user routes", function() {
     });
 
     afterAll(async function() {
-        //await db.sequelize.close();
+        await db.sequelize.close();
     });
 });

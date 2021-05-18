@@ -12,7 +12,7 @@ describe("Test all user controller functions", function() {
 
     beforeAll(async function() {
         passwordHash = await bcrypt.hash("test", BCRYPT_WORK_FACTOR);
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {
@@ -40,7 +40,18 @@ describe("Test all user controller functions", function() {
         } catch (err) {
             //console.log(err);
         }
-    });
+    }, 30000);
+
+    /**
+     * Use the controller to authenticate a user's credentials
+     */
+    describe("Authenticate user", function() {
+        test("Can authenticate a user that exists", async function() {
+            const user = await User.authenticateUser("Test1", "password");
+            expect(user.passwordHash).toBe(undefined);
+            expect(user).toEqual(expect.objectContaining({ userName: 'Test1', email: 'asdf@asdf.com' }));
+        })
+    })
 
     /**
      * Use the controller to look for an existing user
@@ -132,5 +143,7 @@ describe("Test all user controller functions", function() {
             expect(found1.length).toEqual(0);
         });
     });
-
+    afterAll(async function() {
+        await db.sequelize.close();
+    });
 });

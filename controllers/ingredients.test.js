@@ -4,7 +4,7 @@ const Ingredient = require('../controllers/ingredients');
 
 describe("Test ingredient controller functions", function() {
     beforeAll(async function() {
-        await db.sequelize.sync(true).then(() => {
+        await db.sequelize.sync({ force: true }).then(() => {
                 console.log('Database connection has been established.');
             })
             .catch((err) => {

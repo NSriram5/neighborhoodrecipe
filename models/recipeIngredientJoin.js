@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         measurement: {
-            type: DataTypes.ENUM(['teaspoon', 'tablespoon', 'cup', 'quart', 'gallon', 'lb', 'oz', 'pinch', 'whole']),
+            type: DataTypes.ENUM(['teaspoon', 'teaspoons', 'tablespoon', 'tablespoons', 'cup', 'cups', 'quart', 'quarts', 'gallon', 'gallons', 'lb', 'oz', 'pinch', 'whole', 'can']),
             allowNull: false,
         },
         prepInstructions: {
@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         additionalInfo: {
             type: DataTypes.TEXT,
             allowNull: true,
+        },
+        neededInStep: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     });
     RecipeIngredientJoin.associate = (models) => {
