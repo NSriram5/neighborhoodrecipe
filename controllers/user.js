@@ -177,6 +177,7 @@ const removeConnection = async function(selfUserUuId, targetUuId) {
         let connections = await UserUserJoins.removeConnection(selfUserUuId, targetUuId);
         return { message: "Connection removed successfully" };
     } catch (error) {
+        //console.log(error);
         throw new ExpressError(error, 400);
     }
 }

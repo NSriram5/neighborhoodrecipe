@@ -1,7 +1,7 @@
 const testUser1 = {
     userName: "TestUser1",
     password: "password",
-    email: "asdf@asdf.com",
+    email: "asdf1@asdf.com",
     wantsNutritionData: true,
     privacySetting: false
 }
@@ -10,6 +10,30 @@ const testUser2 = {
     userName: "TestUser2",
     password: "password",
     email: "asdf2@asdf.com",
+    wantsNutritionData: false,
+    privacySetting: false
+}
+
+const testUser3 = {
+    userName: "TestUser3",
+    password: "password",
+    email: "asdf3@asdf.com",
+    wantsNutritionData: false,
+    privacySetting: false
+}
+
+const testUser4 = {
+    userName: "TestUser4",
+    password: "password",
+    email: "asdf4@asdf.com",
+    wantsNutritionData: false,
+    privacySetting: false
+}
+
+const testUser5 = {
+    userName: "TestUser5",
+    password: "password",
+    email: "asdf5@asdf.com",
     wantsNutritionData: false,
     privacySetting: false
 }
@@ -303,4 +327,7 @@ module.exports = {
     moroccanlentilsoup,
     testUser1,
     testUser2,
+    testUser3,
+    testUser4,
+    testUser5
 }

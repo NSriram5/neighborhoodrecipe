@@ -48,7 +48,13 @@ const getUserUserConnections = async function(filter) {
     return userUserJoins.findAll({
         where: whereclause,
         returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
-        include: ['requestor', 'target'],
+        include: [{
+            association: 'requestor',
+            attributes: ['email', 'userUuId', 'userName']
+        }, {
+            association: 'target',
+            attributes: ['email', 'userUuId', 'userName']
+        }],
         nest: true,
         raw: true
     }).catch((error) => {
@@ -90,10 +96,14 @@ const checkIfConnected = async function(selfUuId, targetUuId) {
     };
     return userUserJoins.findOne({ where: whereclause })
         .then((result) => {
-            if (!result) return false;
+            if (!result) {
+                console.log(`Searching for user connections produced: ${result}, when selfUuId ${selfUuId}. when targetUuId ${targetUuId}`);
+                return false;
+            }
             return result;
         })
         .catch((err) => {
+            console.log(`An error has occured while trying to check if users were connected ${err}`);
             throw err;
         });
 }

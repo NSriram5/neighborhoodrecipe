@@ -58,9 +58,15 @@ router.get("/:userUuId", ensureLoggedIn, async function(req, res, next) {
  */
 router.post("/emailSearch", ensureLoggedIn, async function(req, res, next) {
     try {
-        const filter = {...req.body, privacySetting: False };
-        const response = await User.getUsers(filter);
-        return res.json({ response })
+        const filter = {...req.body, privacySetting: false };
+        let response = await User.getUsers(filter);
+        response = response[0].dataValues;
+        delete response.passwordHash;
+        delete response.disabled;
+        delete response.isAdmin;
+        delete response.privacySetting;
+        delete response.wantsNutritionData;
+        return res.json({...response });
     } catch (err) {
         console.log(err);
         return next(err);
@@ -74,7 +80,7 @@ router.post("/emailSearch", ensureLoggedIn, async function(req, res, next) {
  * 
  * Authorization required: login and user of target search OR admin
  */
-router.get("/requests/:userUuId", ensureLoggedIn, async function(req, res, next) {
+router.get("/connections/:userUuId", ensureLoggedIn, async function(req, res, next) {
     try {
         if (res.locals.user.isAdmin == false && res.locals.user.userUuId != req.params.userUuId) {
             throw new ForbiddenError("Only an admin or the user of this account can view these details");
@@ -140,6 +146,7 @@ router.post("/connect/:userUuId", ensureLoggedIn, async function(req, res, next)
         }
         throw new BadRequestError("A connection request already exists");
     } catch (err) {
+        console.log(`An error has occured ${err}`)
         return next(err);
     }
 });
