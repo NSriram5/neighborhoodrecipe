@@ -226,7 +226,7 @@ const deleteRecipe = async function(recipeUuid) {
     }
     let response
     try {
-        response = await Recipe.findOne({ where: { recipeUuid: recipeUuid }, logging: console.log });
+        response = await Recipe.findOne({ where: { recipeUuid: recipeUuid } });
         //response = await Recipe.findByPk(recipeUuid);
     } catch (err) {
         console.log(err);
@@ -300,7 +300,6 @@ const getMyRecipes = async function(userUuId, connected = false, searchParams = 
             ],
             //raw: true,
             nest: true,
-            logging: console.log
         });
     } catch (err) {
         console.log(err);

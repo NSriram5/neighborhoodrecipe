@@ -1,4 +1,5 @@
 const userUserJoins = require('../models').userUserJoins;
+const userModel = require('../models').User;
 const Op = require('../models').Sequelize.Op;
 const { BadRequestError, ExpressError, NotFoundError } = require("../expressError");
 
@@ -47,7 +48,15 @@ const getUserUserConnections = async function(filter) {
     return userUserJoins.findAll({
         where: whereclause,
         returning: ['id', 'accepted', 'requestorUuId', 'targetUuId'],
-        //raw: true
+        include: [{
+            association: 'requestor',
+            attributes: ['email', 'userUuId', 'userName']
+        }, {
+            association: 'target',
+            attributes: ['email', 'userUuId', 'userName']
+        }],
+        nest: true,
+        raw: true
     }).catch((error) => {
         console.log(error);
         return error;
@@ -87,10 +96,14 @@ const checkIfConnected = async function(selfUuId, targetUuId) {
     };
     return userUserJoins.findOne({ where: whereclause })
         .then((result) => {
-            if (!result) return false;
+            if (!result) {
+                console.log(`Searching for user connections produced: ${result}, when selfUuId ${selfUuId}. when targetUuId ${targetUuId}`);
+                return false;
+            }
             return result;
         })
         .catch((err) => {
+            console.log(`An error has occured while trying to check if users were connected ${err}`);
             throw err;
         });
 }
@@ -164,6 +177,10 @@ const acceptConnection = async function(selfUuId, targetUuId) {
 }
 
 const newConnectionRequest = async function(targetUuId, selfUuId) {
+    if (targetUuId == undefined || selfUuId == undefined) {
+        console.log("Either a targetUuId or a selfUuId was not provided");
+        throw new BadRequestError(`targetUuId: ${targetUuId} or selfUuId: ${selfUuId} is not defined`);
+    }
     const response = await checkIfConnected(selfUuId, targetUuId);
     if (response) throw new BadRequestError("Connection already exists");
     return userUserJoins.create({ targetUuId, requestorUuId: selfUuId })

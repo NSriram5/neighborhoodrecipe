@@ -6,12 +6,21 @@ const {
     moroccanlentilsoup,
     testUser1,
     testUser2,
+    testUser3,
+    testUser4,
+    testUser5
 } = require("./testData");
 const Recipe = require('../controllers/recipe');
 const User = require('../controllers/user');
 
 async function seed() {
     const [u1, u2] = await Promise.all([User.createUser(testUser1), User.createUser(testUser2)]);
+    const [u3, u4] = await Promise.all([
+        User.createUser(testUser3),
+        User.createUser(testUser4)
+    ]);
+
+    const u5 = await User.createUser(testUser5);
     console.log(u1);
     console.log(u2);
     bethsSoupBroth.userUuId = u1.userUuId;
@@ -33,6 +42,8 @@ async function seed() {
 
     await User.inviteUser(u1.userUuId, u2.userUuId);
     await User.acceptUser(u2.userUuId, u1.userUuId);
+    await User.inviteUser(u1.userUuId, u3.userUuId);
+    await User.inviteUser(u4.userUuId, u1.userUuId);
 }
 
 module.exports = { seed };

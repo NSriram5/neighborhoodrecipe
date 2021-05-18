@@ -58,9 +58,15 @@ router.get("/:userUuId", ensureLoggedIn, async function(req, res, next) {
  */
 router.post("/emailSearch", ensureLoggedIn, async function(req, res, next) {
     try {
-        const filter = {...req.body, privacySetting: False };
-        const response = await User.getUsers(filter);
-        return res.json({ response })
+        const filter = {...req.body, privacySetting: false };
+        let response = await User.getUsers(filter);
+        response = response[0].dataValues;
+        delete response.passwordHash;
+        delete response.disabled;
+        delete response.isAdmin;
+        delete response.privacySetting;
+        delete response.wantsNutritionData;
+        return res.json({...response });
     } catch (err) {
         console.log(err);
         return next(err);
@@ -74,12 +80,12 @@ router.post("/emailSearch", ensureLoggedIn, async function(req, res, next) {
  * 
  * Authorization required: login and user of target search OR admin
  */
-router.get("/requests/:userUuId", ensureLoggedIn, async function(req, res, next) {
+router.get("/connections/:userUuId", ensureLoggedIn, async function(req, res, next) {
     try {
         if (res.locals.user.isAdmin == false && res.locals.user.userUuId != req.params.userUuId) {
             throw new ForbiddenError("Only an admin or the user of this account can view these details");
         }
-        const users = await UserUserJoins.getPendingIncConnections(req.params.userUuId);
+        const users = await UserUserJoins.getUserUserConnections({ userUuId: req.params.userUuId });
         return res.json({ users });
 
     } catch (err) {
@@ -102,6 +108,14 @@ router.post("/:userUuId", ensureLoggedIn, async function(req, res, next) {
             const errs = validator.errors.map(e => e.stack);
             throw new BadRequestError(errs);
         }
+        const valid = await User.authenticateUser(req.body.oldUserName, req.body.oldPassword);
+        if (!valid) {
+            throw new ExpressError("Invalid userName or password", 400);
+        }
+        req.body.password = req.body.newPassword;
+        delete req.body.oldUserName;
+        delete req.body.oldPassword;
+        delete req.body.newPassword;
         const user = await User.updateUser(req.body);
         return res.json(user);
     } catch (err) {
@@ -132,6 +146,7 @@ router.post("/connect/:userUuId", ensureLoggedIn, async function(req, res, next)
         }
         throw new BadRequestError("A connection request already exists");
     } catch (err) {
+        console.log(`An error has occured ${err}`)
         return next(err);
     }
 });

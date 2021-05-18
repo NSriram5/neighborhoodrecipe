@@ -43,20 +43,19 @@ describe("Test the ingredients route(s)", function() {
         moroccanlentilsoup.userUuId = u2.userUuId;
         bethsSoupBroth.userUuId = u1.userUuId;
 
-        [r1, r2, r3, r4, r5] = await Promise.all([
-            Recipe.createRecipe(chickenSalad),
-            Recipe.createRecipe(rasam),
-            Recipe.createRecipe(humus),
-            Recipe.createRecipe(moroccanlentilsoup),
-            Recipe.createRecipe(bethsSoupBroth)
-        ]);
+        r1 = await Recipe.createRecipe(bethsSoupBroth);
+        r2 = await Recipe.createRecipe(chickenSalad);
+        r3 = await Recipe.createRecipe(rasam);
+        r4 = await Recipe.createRecipe(humus);
+        r5 = await Recipe.createRecipe(moroccanlentilsoup);
+
         let response = await request(app)
             .post("/auth/token")
             .send({ userName: "Test1", password: "password" });
         token1 = response.body.token;
     });
 
-    describe("GET /ingredients/?lookup=Cil", async function() {
+    describe("GET /ingredients/?lookup=Cil", function() {
         test("can get ingredients that have 'Cil' in their label", async function() {
             response = await request(app)
                 .get('/ingredients?lookup=Cil')
