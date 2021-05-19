@@ -24,14 +24,14 @@ const configuration = {
     },
     aws: {
         databaseConfig: {
-            DATABASE_USERNAME: process.env.DB_USERNAME || 'postgres',
-            DATABSE_PASSWORD: process.env.DB_PASSWORD,
-            DATABASE_NAME: process.env.DB_NAME,
+            DATABASE_USERNAME: process.env.RDS_USERNAME || 'postgres',
+            DATABSE_PASSWORD: process.env.RDS_PASSWORD,
+            DATABASE_NAME: process.env.RDS_DB_NAME,
             DATABSE_URL: process.env.DB_URL, //'neighborhoodRecipe-dev.cyfaiieqbmoj.us-west-2.rds.amazonaws.com',
-            DATABASE_PORT: process.env.DB_PORT
+            DATABASE_PORT: process.env.RDS_PORT
         },
         databaseOptions: {
-            "host": process.env.DB_HOST, //"neighborhoodRecipe-dev.cyfaiieqbmoj.us-west-2.rds.amazonaws.com",
+            "host": process.env.RDS_HOSTNAME, //"neighborhoodRecipe-dev.cyfaiieqbmoj.us-west-2.rds.amazonaws.com",
             "dialect": "postgres",
             "freezeTableName": true,
             "port": process.env.DB_PORT,
