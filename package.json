@@ -8,8 +8,8 @@
         "start": "node index.js"
     },
     "engines": {
-        "node": "v14.16.1",
-        "npm": "v7.13.0"
+        "node": "14.16.1",
+        "npm": "7.13.0"
     },
     "keywords": [
         "recipes",
