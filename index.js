@@ -19,6 +19,7 @@ if (configuration.environmentOptions.environment == "LOCAL") {
 }
 if (configuration.environmentOptions.environment == "AWS") {
     port = 8080;
+    let forceOption = { force: true };
     console.log("I'm in an AWS cloud environment");
     db.sequelize.sync(forceOption)
         .then(() => {
