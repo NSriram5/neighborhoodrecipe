@@ -18,7 +18,7 @@ if (configuration.environmentOptions.environment == "LOCAL") {
 
 }
 if (configuration.environmentOptions.environment == "AWS") {
-    port = 8081;
+    port = 8080;
     console.log("I'm in an AWS cloud environment");
 }
 
