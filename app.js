@@ -28,10 +28,20 @@ app.use(authenticateJWT);
 app.use(express.json());
 //app.use(bodyParser.urlencoded({ extended: false }));
 
+
+
 app.use("/auth", authRoutes);
 app.use("/recipes", recipesRoutes);
 app.use("/users", usersRoutes);
 app.use("/ingredients", ingredientsRoutes);
+
+app.get("/", async function(req, res, next) {
+    try {
+        return res.json({ Welcome: "Welcome to the neighborhood recipe API" });
+    } catch (err) {
+        return next(err);
+    }
+});
 
 /** Handle 404 errors -- this matches everything */
 app.use(function(req, res, next) {
