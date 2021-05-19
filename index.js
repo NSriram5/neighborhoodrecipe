@@ -4,6 +4,7 @@ const db = require('./models/index');
 const app = require("./app");
 const { seed } = require("./seeding/seeding");
 const { configuration } = require('./config/config');
+let port = 3001;
 if (configuration.environmentOptions.environment == "LOCAL") {
     console.log("I'm in a local environment");
     let forceOption = { force: true };
@@ -17,9 +18,10 @@ if (configuration.environmentOptions.environment == "LOCAL") {
 
 }
 if (configuration.environmentOptions.environment == "AWS") {
+    port = 8081;
     console.log("I'm in an AWS cloud environment");
 }
 
-app.listen(3001, function() {
-    console.log("listening on 3001");
+app.listen(port, function() {
+    console.log(`listening on ${port}`);
 })
