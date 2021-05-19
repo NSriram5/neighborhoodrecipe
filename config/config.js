@@ -50,7 +50,7 @@ configuration.local.databaseConfig.DATABASE_NAME = (process.env.NODE_ENV === "te
 module.exports.configuration = configuration;
 module.exports.BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
 module.exports.SECRET_KEY = process.env.SECRET_KEY || "test";
-//module.exports.SESSION_SECRET = "overcooked";
+module.exports.SESSION_SECRET = process.env.SESSION_SECRET;
 module.exports.EDAMAM_URL = process.env.EDAMAM_URL;
 module.exports.EDAMAM_ID = process.env.EDAMAM_ID;
 module.exports.EDAMAM_KEY = process.env.EDAMAM_KEY;
