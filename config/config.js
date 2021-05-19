@@ -42,7 +42,7 @@ const configuration = {
         }
     },
     environmentOptions: {
-        environment: process.ENV.ENVIRONMENTNAME || "LOCAL",
+        environment: process.env.ENVIRONMENTNAME || "LOCAL",
     }
 }
 configuration.local.databaseConfig.DATABASE_NAME = (process.env.NODE_ENV === "test") ? "neighborhoodrecipetest" : "neighborhoodrecipe";
