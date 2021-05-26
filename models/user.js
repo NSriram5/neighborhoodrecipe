@@ -45,6 +45,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
             allowNull: false
+        },
+        googleUser: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false
+        },
+        googleId: {
+            type: DataTypes.STRING,
+            defaultValue: "",
+            allowNull: true
         }
     });
     User.associate = (models) => {

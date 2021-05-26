@@ -12,6 +12,10 @@ const { createToken } = require("../helpers/tokens");
 const userAuthSchema = require("../schemas/userAuth.json");
 const userRegisterSchema = require("../schemas/userRegister.json");
 const { BadRequestError, UnauthorizedError, ExpressError } = require("../expressError");
+const { OAuth2Client } = require('google-auth-library');
+const { GOOGLE_CLIENT_ID } = require("../config/config");
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const { DEFAULT_USER_PW } = require('../config/config');
 const { BCRYPT_WORK_FACTOR } = require("../config/config");
 
 /** POST /auth/token:  { username, password } => { token }
@@ -41,6 +45,50 @@ router.post("/token", async function(req, res, next) {
         return next(err);
     }
 });
+
+/** 
+ * 
+ */
+router.post('/google', async function(req, res, next) {
+    try {
+        console.log("Beginning token validation");
+        const ticket = await client.verifyIdToken({
+            idToken: req.body.tokenId,
+            audience: GOOGLE_CLIENT_ID
+        });
+        //console.log(ticket);
+        const providedEmail = ticket.getPayload().email;
+        const providedName = ticket.getPayload().given_name;
+        const userID = ticket.getPayload().sub;
+        const found = await User.getGoogleUser(userID);
+        if (found != undefined) {
+            const token = createToken(found);
+            return res.status(201).json({ token, user: found });
+        }
+        const newUser = {
+            userName: providedName,
+            email: providedEmail,
+            googleUser: true,
+            googleId: userID,
+            password: DEFAULT_USER_PW
+        }
+        const googleUser = await User.createUser(newUser);
+        const found2nd = await User.getGoogleUser(userID);
+        if (found2nd == undefined) {
+            throw new ExpressError("I tried to create a new google user after failing to find one, but I still can't find the user");
+        }
+        const token = createToken(found2nd);
+        return res.status(201).json({ token, user: found2nd });
+
+        console.log(`${found}`);
+    } catch (err) {
+        return next(err);
+    }
+})
+
+// router.get('/google/redirect')
+
+// router.get('/google/')
 
 /** POST /auth/login - login: { username, password } => { token }
  *  
@@ -75,7 +123,6 @@ router.post("/token", async function(req, res, next) {
 
 router.post("/register", async function(req, res, next) {
     try {
-        console.log("Entering registration process");
         const validator = jsonschema.validate(req.body, userRegisterSchema);
         if (!validator.valid) {
             const errs = validator.errors.map(e => e.stack);

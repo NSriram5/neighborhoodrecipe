@@ -7,7 +7,7 @@ const { BCRYPT_WORK_FACTOR } = require("../config/config.js");
 const { BadRequestError, ExpressError } = require("../expressError");
 
 const allAttributes = ['email', 'userName', 'isAdmin',
-    'disabled', 'userUuId', 'wantsNutritionData', 'privacySetting'
+    'disabled', 'userUuId', 'wantsNutritionData', 'privacySetting', 'googleUser', 'googleId'
 ]
 
 /**
@@ -121,7 +121,7 @@ const authenticateUser = async function(userName, password) {
         const users = await this.getUsers({ userName: userName }, true);
         for (user of users) {
             let userDataValues = user.dataValues;
-            if (user && user.passwordHash) {
+            if (user && user.passwordHash && !userDataValues.googleUser) {
                 const valid = await bcrypt.compare(password, user.passwordHash);
                 delete userDataValues.passwordHash;
                 if (valid === true) {
@@ -137,6 +137,20 @@ const authenticateUser = async function(userName, password) {
         return false;
     }
 };
+
+const getGoogleUser = async function(googleId) {
+    try {
+        const user = await User.findOne({
+            where: { googleId: googleId },
+            attributes: allAttributes
+        });
+        if (user == undefined) return undefined;
+        return user.dataValues;
+    } catch (error) {
+        console.log(error, "There was an error with finding the google user");
+        return false;
+    }
+}
 
 const inviteUser = async function(selfUserUuId, targetUserUuid) {
     try {
@@ -217,5 +231,6 @@ module.exports = {
     inviteUser,
     acceptUser,
     getConnections,
-    removeConnection
+    removeConnection,
+    getGoogleUser
 }

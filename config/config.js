@@ -1,7 +1,5 @@
 require("dotenv").config();
 
-
-
 const configuration = {
     local: {
         databaseConfig: {
@@ -54,3 +52,5 @@ module.exports.SESSION_SECRET = process.env.SESSION_SECRET;
 module.exports.EDAMAM_URL = process.env.EDAMAM_URL;
 module.exports.EDAMAM_ID = process.env.EDAMAM_ID;
 module.exports.EDAMAM_KEY = process.env.EDAMAM_KEY;
+module.exports.GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+module.exports.DEFAULT_USER_PW = process.env.DEFAULT_USER_PW;
