@@ -27,7 +27,6 @@ if (configuration.environmentOptions.environment == "AWS") {
         })
         .catch((err) => {
             console.error('Unable to connect to the database:', err);
-            console.log(configuration.aws.databaseOptions);
         })
 }
 
