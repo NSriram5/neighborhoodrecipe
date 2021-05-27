@@ -25,7 +25,10 @@ if (configuration.environmentOptions.environment == "AWS") {
         .then(() => {
             console.log('Connection has been established successfully.');
         })
-        .catch((err) => { console.error('Unable to connect to the database:', err); })
+        .catch((err) => {
+            console.error('Unable to connect to the database:', err);
+            console.log(configuration.aws.databaseOptions);
+        })
 }
 
 app.listen(port, function() {
