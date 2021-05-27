@@ -16,7 +16,7 @@ if (config.configuration.environmentOptions.environment == "LOCAL") {
 }
 if (config.configuration.environmentOptions.environment == "AWS") {
     console.log('Using an AWS database');
-    console.log(`${conig.configuration.aws.databaseOptions}`)
+    console.log(`${config.configuration.aws.databaseOptions}`)
     sequelize = new Sequelize(
         config.configuration.aws.databaseConfig.DATABASE_NAME,
         config.configuration.aws.databaseConfig.DATABASE_USERNAME,
