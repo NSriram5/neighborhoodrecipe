@@ -57,7 +57,7 @@ router.post('/google', async function(req, res, next) {
             audience: GOOGLE_CLIENT_ID
         });
         //console.log(ticket);
-        const providedEmail = ticket.getPayload().email;
+        const providedEmail = ticket.getPayload().email.toLowerCase();
         const providedName = ticket.getPayload().given_name;
         const userID = ticket.getPayload().sub;
         const found = await User.getGoogleUser(userID);

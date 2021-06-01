@@ -426,6 +426,7 @@ const updateRecipe = async function(recipe) {
             RecipeIngredientJoin.updateOrCreateRecipeIngredient(newIngredient);
         }
     }
+
     return Recipe
         .update(
             newRecipe, {

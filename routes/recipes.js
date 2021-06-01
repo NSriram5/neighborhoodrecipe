@@ -130,12 +130,12 @@ router.get("/research/:recipeUuid", ensureLoggedIn, async function(req, res, nex
  */
 router.post("/", ensureLoggedIn, async function(req, res, next) {
     try {
-        req.body.servingCount = +req.body.servingCount ? +req.body.servingCount : undefined;
-        req.body.farenheitTemp = +req.body.farenheitTemp ? +req.body.farenheitTemp : undefined;
-        req.body.minuteTimeBake = +req.body.minuteTimeBake ? +req.body.minuteTimeBake : undefined;
-        req.body.minuteTotalTime = +req.body.minuteTotalTime ? +req.body.minuteTotalTime : undefined;
-        req.body.minutePrepTime = +req.body.minutePrepTime ? +req.body.minutePrepTime : undefined;
-        req.body.minuteCookTime = +req.body.minuteCookTime ? +req.body.minuteCookTime : undefined;
+        req.body.servingCount = +req.body.servingCount || req.body.servingCount === "0" ? +req.body.servingCount : undefined;
+        req.body.farenheitTemp = +req.body.farenheitTemp || req.body.farenheitTemp === "0" ? +req.body.farenheitTemp : undefined;
+        req.body.minuteTimeBake = +req.body.minuteTimeBake || req.body.minuteTimeBake === "0" ? +req.body.minuteTimeBake : undefined;
+        req.body.minuteTotalTime = +req.body.minuteTotalTime || req.body.minuteTotalTime === "0" ? +req.body.minuteTotalTime : undefined;
+        req.body.minutePrepTime = +req.body.minutePrepTime || req.body.minutePrepTime === "0" ? +req.body.minutePrepTime : undefined;
+        req.body.minuteCookTime = +req.body.minuteCookTime || req.body.minuteCookTime === "0" ? +req.body.minuteCookTime : undefined;
         for (let ingredient of req.body.ingredients) {
             ingredient.quantity = +ingredient.quantity;
         }
@@ -163,12 +163,12 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
  */
 router.patch("/", ensureLoggedIn, async function(req, res, next) {
     try {
-        req.body.servingCount = +req.body.servingCount ? +req.body.servingCount : undefined;
-        req.body.farenheitTemp = +req.body.farenheitTemp ? +req.body.farenheitTemp : undefined;
-        req.body.minuteTimeBake = +req.body.minuteTimeBake ? +req.body.minuteTimeBake : undefined;
-        req.body.minuteTotalTime = +req.body.minuteTotalTime ? +req.body.minuteTotalTime : undefined;
-        req.body.minutePrepTime = +req.body.minutePrepTime ? +req.body.minutePrepTime : undefined;
-        req.body.minuteCookTime = +req.body.minuteCookTime ? +req.body.minuteCookTime : undefined;
+        req.body.servingCount = +req.body.servingCount || req.body.servingCount === "0" ? +req.body.servingCount : null;
+        req.body.farenheitTemp = +req.body.farenheitTemp || req.body.farenheitTemp === "0" ? +req.body.farenheitTemp : null;
+        req.body.minuteTimeBake = +req.body.minuteTimeBake || req.body.minuteTimeBake === "0" ? +req.body.minuteTimeBake : null;
+        req.body.minuteTotalTime = +req.body.minuteTotalTime || req.body.minuteTotalTime === "0" ? +req.body.minuteTotalTime : null;
+        req.body.minutePrepTime = +req.body.minutePrepTime || req.body.minutePrepTime === "0" ? +req.body.minutePrepTime : null;
+        req.body.minuteCookTime = +req.body.minuteCookTime || req.body.minuteCookTime === "0" ? +req.body.minuteCookTime : null;
         for (let ingredient of req.body.ingredients) {
             ingredient.quantity = +ingredient.quantity;
         }
@@ -184,8 +184,6 @@ router.patch("/", ensureLoggedIn, async function(req, res, next) {
         }
         req.body["recipeUuid"] = recipe.recipeUuid;
         const updated = await Recipe.updateRecipe(req.body);
-        console.log(updated);
-        console.log(updated[1]);
         return res.json(updated[1][0]);
     } catch (err) {
         return next(err);
