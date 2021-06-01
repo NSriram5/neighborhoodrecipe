@@ -7,7 +7,7 @@ const RecipeIngredientJoin = require('../controllers/recipeIngredientJoin');
 const { bethsSoupBroth, moroccanlentilsoup, humus, chickenSalad, rasam } = require("../seeding/testData");
 
 describe("Test recipe controller functions", function() {
-    let uuId1, uuId2, uuId3;
+    let uuId1, uuId2, uuId3
 
     beforeAll(async function() {
         await db.sequelize.sync({ force: true }).then(() => {
@@ -39,6 +39,7 @@ describe("Test recipe controller functions", function() {
             password: "badpassword",
             userName: "Test3"
         });
+
         uuId1 = u1.userUuId;
         uuId2 = u2.userUuId;
         uuId3 = u3.userUuId;
@@ -49,6 +50,7 @@ describe("Test recipe controller functions", function() {
         await User.acceptUser(uuId2, uuId1);
         await User.inviteUser(uuId3, uuId2);
         await User.acceptUser(uuId2, uuId3);
+
     }, 30000);
 
     /**
@@ -223,6 +225,47 @@ describe("Test recipe controller functions", function() {
         });
     });
 
+    /**
+     * Get recipes that belong to a user's connections, but not if the connection isn't accepted yet
+     */
+    describe("Both friends have to accept a connection request and can then see eachother's recipes", function() {
+        let r1, r2, r3, r4;
+        let uuId4;
+
+        beforeEach(async function() {
+            humus.userUuId = uuId1;
+            bethsSoupBroth.userUuId = uuId3;
+            moroccanlentilsoup.userUuId = uuId2;
+            chickenSalad.userUuId = uuId3;
+            rasam.userUuId = uuId1;
+            let u4 = await User.createUser({
+                email: "zooomies@gmail.com",
+                password: "badpassword",
+                userName: "Test4"
+            });
+            uuId4 = u4.userUuId;
+            r1 = await Recipe.createRecipe(bethsSoupBroth);
+            r2 = await Recipe.createRecipe(chickenSalad);
+            r3 = await Recipe.createRecipe(rasam);
+            r4 = await Recipe.createRecipe(humus);
+            r5 = await Recipe.createRecipe(moroccanlentilsoup);
+            await User.inviteUser(uuId1, uuId4)
+        }, 30000);
+
+        test("I can see my connection's recipes", async function() {
+            let response = await Recipe.getMyRecipes(uuId2, true, "");
+            expect(response.length).toEqual(8);
+            expect(response).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'Rasam' })]));
+            expect(response).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'Moroccan Lentil Soup' })]));
+            expect(response).toEqual(expect.arrayContaining([expect.objectContaining({ recipeName: 'Chicken Salad' })]));
+        })
+
+        test("A user without an accepted connection cannot see recipes", async function() {
+            let response = await Recipe.getMyRecipes(uuId4)
+            expect(response.length).toEqual(0);
+        })
+    })
+
     describe("load Beth's Soup Broth in through the controller", function() {
         test("make Beth's Soup Broth through the controller", async function() {
             bethsSoupBroth.userUuId = uuId2;
@@ -243,6 +286,11 @@ describe("Test recipe controller functions", function() {
             moroccanlentilsoup.userUuId = uuId2;
             chickenSalad.userUuId = uuId3;
             rasam.userUuId = uuId1;
+            let u4 = await User.createUser({
+                email: "zoomies@gmail.com",
+                password: "badpassword",
+                userName: "Test4"
+            })
             r1 = await Recipe.createRecipe(bethsSoupBroth);
             r2 = await Recipe.createRecipe(chickenSalad);
             r3 = await Recipe.createRecipe(rasam);

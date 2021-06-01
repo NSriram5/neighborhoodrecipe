@@ -313,7 +313,11 @@ const getMyRecipes = async function(userUuId, connected = false, searchParams = 
     } catch (err) {
         console.log(err);
     }
-    let friendsWithRecipes = [...recipesFromOthers[0].friendsMe, ...recipesFromOthers[0].friends]
+    let friendsWithRecipes = [...recipesFromOthers[0].friendsMe.filter((item) => {
+        return item.userUserJoins.accepted
+    }), ...recipesFromOthers[0].friends.filter((item) => {
+        return item.userUserJoins.accepted
+    })];
     let theirRecipes = friendsWithRecipes.reduce((acc, curr) => { return [...acc, ...curr.Recipes] }, []);
     let theirRecipesDataValues = theirRecipes.map((item) => { return item.dataValues });
 
