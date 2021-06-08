@@ -326,45 +326,6 @@ const getMyRecipes = async function(userUuId, connected = false, searchParams = 
 }
 
 
-// const getMyRecipes = async function(userUuId, connected = false, searchParams = undefined) {
-//     let whereclause = {};
-
-//     if (connected) {
-//         let frienduuids1 = userUserJoinModel.findAll({
-//             where: { requestorUuId: userUuId },
-//             attributes: ['targetUuId'],
-//             raw: true
-//         })
-//         let frienduuids2 = userUserJoinModel.findAll({
-//             where: { targetUuId: userUuId },
-//             attributes: ['requestorUuId'],
-//             raw: true
-//         });
-//         [frienduuids1, frienduuids2] = await Promise.all([frienduuids1, frienduuids2]);
-//         let superfriends = [userUuId, ...frienduuids1.map((item) => item['targetUuId']), ...frienduuids2.map((item) => item['requestorUuId'])];
-
-//         whereclause.userUuId = {
-//             [Op.or]: superfriends
-//         };
-//     } else {
-//         whereclause.userUuId = {
-//             [Op.eq]: userUuId
-//         };
-//     }
-//     return Recipe
-//         .findAll({
-//             logging: console.log,
-//             where: whereclause,
-//             raw: true,
-//             attributes: previewAttributes,
-//             include: [user]
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//             return error;
-//         })
-// }
-
 const updateRecipe = async function(recipe) {
     let whereclause = {};
     if (recipe.recipeUuid == undefined) { return { error: 'You must submit a recipeUuid' }; }
