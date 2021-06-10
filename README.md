@@ -106,7 +106,7 @@ To ease new users into the access of this app, it is designed around accepting g
 ### **Raw formatting of data**
 **Problem**: The test user group that I wanted to share this application with needed to feel as though they wouldn't be repeatedly doing data entry of a recipe object. Part of this was fixed by arranging the operations of this app into a three tier architecture, but the ability to give users full ability to download a JSON serialized version of their recipe was still desired
 
-**Solution**:** A frontend only method to render the JSON into a text file was implemented using the function `encodeURIComponent(input)`.
+**Solution**: A frontend only method to render the JSON into a text file was implemented using the function `encodeURIComponent(input)`.
 
 **Lessong Learned**: Empowering a front-end browswer client to download a rendition of hosted content avoids putting a computational load on a backend-service and may be userful in other applications.
 
