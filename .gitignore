@@ -2,7 +2,7 @@ node_modules
 
 .env
 secretsConfig
-<secretsConfig>
+<secretsConfig>.js
 neighborhoodrecipe-schema.sql
 neighborhoodrecipe.sql
 # Elastic Beanstalk Files
